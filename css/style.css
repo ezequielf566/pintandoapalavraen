@@ -14,38 +14,38 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sa
 
 .wrap{max-width:1024px;margin:0 auto;padding:12px;display:flex;flex-direction:column;gap:14px}
 
+/* CORREÇÃO NA STAGE: Adicionado ; e centralização flex */
 .stage {
   background:#fff;
   border-radius:var(--radius);
   box-shadow:var(--shadow);
-  padding:12px; /* Corrigido: ponto e vírgula adicionado */
+  padding:12px; 
   padding-bottom: 120px;
   box-sizing: border-box;
   text-align: center;
   overflow: hidden;
-  /* Centralização para Tablet/Desktop */
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 75vh;
+  min-height: 70vh;
 }
 
+/* CORREÇÃO NA SVGMOUNT: Altura baseada na tela (vh) em vez de proporção fixa */
 .svgMount {
   width:100%;
-  height: 70vh; /* Altura responsiva baseada na tela */
-  max-height: 85vh;
+  height: 70vh;
+  max-height: 80vh;
   background:#fff;
   border-radius:14px;
   position:relative;
   overflow: hidden;
-  /* Garante que o SVG fique no centro do container */
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Garante que o SVG interno se ajuste sem sumir ou subir */
+/* Ajuste para o SVG interno preencher o container sem sobrar espaço */
 .svgMount svg {
   display: block;
   width: auto !important;
@@ -114,7 +114,6 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sa
   pointer-events: none;
 }
 
-/* --- Botões de zoom --- */
 #zoom-in,
 #zoom-out {
   background: none !important;
@@ -135,10 +134,10 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sa
   gap: 6px;
 }
 
-/* Ajuste específico para Celulares (Mantendo seu design original) */
+/* Ajuste específico para Celulares para manter seu design original */
 @media (max-width:640px){
   .wrap{padding:8px;gap:10px}
-  .stage{padding:8px; padding-bottom: 130px; min-height: 60vh;}
+  .stage{padding:8px; padding-bottom: 130px;}
   .svgMount { height: auto; aspect-ratio: 3/4; }
   .btn{padding:10px}
   .sw { width: 42px; height: 42px; }
