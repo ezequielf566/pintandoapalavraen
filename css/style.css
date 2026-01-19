@@ -13,404 +13,81 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sa
 .pill{background:#fff;border:0;border-radius:9999px;padding:8px 14px;box-shadow:var(--shadow);cursor:pointer;display:flex;gap:8px;align-items:center;font-weight:700}
 
 .wrap{max-width:1024px;margin:0 auto;padding:12px;display:flex;flex-direction:column;gap:14px}
-.stage {background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:12px
-  padding-bottom: 120px;
-  box-sizing: border-box;
 
-  text-align: center;
-  overflow: auto;
-}
-.svgMount{width:100%;aspect-ratio:16/10;background:#fff;border-radius:14px;overflow:hidden;display:flex;align-items:center;justify-content:center}
-.svgMount svg{width:100%;height:100%;display:block}
-
-.controls{display:flex;flex-direction:column;gap:12px;align-items:center}
-.swatches{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center}
-.sw{width:28px;height:28px;border-radius:50%!important;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.15);
-    background:var(--c);cursor:pointer;padding:0}
-#picker{width:36px;height:28px;border-radius:8px;border:1px solid #e5e7eb}
-
-.tools{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px}
-.btn{background:#ffb703;color:#222;border:0;border-radius:12px;padding:10px 14px;cursor:pointer;box-shadow:var(--shadow);font-weight:700}
-.btn.primary{background:#2ecc71;color:#fff}
-.pager{display:flex;gap:12px;align-items:center;justify-content:center}
-.navbtn{min-width:42px;min-height:36px;border:0;border-radius:10px;background:#ffd166;box-shadow:var(--shadow);cursor:pointer}
-
-@media (max-width:640px){
-  .svgMount{aspect-ratio:3/4}
-  .btn{padding:9px 12px}
-}
-@media print{
-  .topbar,.controls{display:none!important}
-  body{background:#fff}
-  .stage {box-shadow:none
-  padding-bottom: 120px;
-  box-sizing: border-box;
-
-  text-align: center;
-  overflow: auto;
-}
-}
-
-.btn.active{outline:3px solid rgba(0,0,0,.25); transform:translateY(-1px)}
-
-/* Prancheta com rolagem vertical apenas */
-.svgMount{
-  width:100%;
+.stage {
   background:#fff;
   border-radius:var(--radius);
-  overflow-y:auto;
-  overflow-x:hidden;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  max-height:70vh;
-  margin:0 auto;
-  position:relative;
-}
-.zoomWrap{ will-change: transform; }
-/* Espaço extra para rolagem quando o zoom aumenta */
-.svgMount{ padding-top: 0; }
-.svgMount::after{
-  content:'';
-  display:block;
-  height: var(--zoom-extra, 0px);
-  width:1px;
-}
-
-/* Controles fora da prancheta não escalam */
-.btn.active{outline:3px solid rgba(0,0,0,.25); transform:translateY(-1px)}
-
-
-/* === Progress Widget === */
-.progress-widget{display:flex;flex-direction:column; align-items:flex-end; gap:8px; max-width:min(620px, 92vw); margin-left:auto; --emoji:34px; --gap:6px}
-@media (max-width:640px){ .progress-widget{} }
-.progress-widget .counter{display:flex;align-items:center; gap:8px; font-weight:800; color:#111; font-size:clamp(16px, 2.4vw, 28px)}
-.progress-widget .star-icon{font-size:1.1em; filter:drop-shadow(0 1px 0 rgba(0,0,0,.35)); color:#f4b400;}
-.progress-widget .percent{font-weight:800; margin-left:6px}
-.progressbar{position:relative; width:min(560px, 92vw); height:34px; background:#fff; border-radius:9999px; box-shadow:inset 0 0 0 4px rgba(17,24,39,.85); overflow:visible}
-.progressbar .track{position:absolute; left:0; top:0; bottom:0; right:calc(var(--emoji) + var(--gap)); border-radius:9999px; overflow:hidden}
-.progress-fill{position:absolute; left:0; top:0; height:100%; width:0%; background:#9dd39a;}
-/* === Progress bar refined (no overflow over black borders) === */
-.progress-widget{}
-@media (max-width:640px){ .progress-widget{} }
-
-.progressbar{
-  position:relative;
-  width:min(560px, 92vw);
-  height:34px;
-  padding:4px;               /* space for the border */
-  background:transparent;
-  border:4px solid #111;     /* FULL black opaque */
-  border-radius:9999px;
-  box-shadow:none;
-}
-
-.progressbar .track{
-  position:absolute;
-  left:4px; right:4px;
-  top:4px; bottom:4px;
-  background:#ffffff;        /* empty area stays white */
-  border-radius:9999px;
-  overflow:hidden;
-}
-
-.progress-fill{
-  position:absolute; left:0; top:0; height:100%;
-  width:0%;
-  background:#9dd39a;        /* soft green */
-}
-
-/* Finishing touches for progress bar + emoji */
-.progress-widget{}
-@media (max-width:640px){ .progress-widget{} }
-
-.progressbar{
-  position:relative;
-  width:min(560px, 92vw);
-  height: 42px;
-  padding:4px;
-  background:transparent;
-  border:4px solid #111;         
-  border-radius:9999px;
-}
-
-.progressbar .track{
-  position:absolute; inset:4px;
-  right:4px;
-  background:#fff;
-  border-radius:9999px;
-  overflow:hidden;
-}
-
-.progress-fill{
-  position:absolute; left:0; top:0; bottom:0;
-  width:0%;
-  background:#9dd39a;
-}
-
-/* === Crisp emoji + spacing fix === */
-.progress-widget{}
-@media (max-width:640px){ .progress-widget{} }
-
-.progressbar{
-  position:relative;
-  width:min(560px, 92vw);
-  height: 42px;
-  padding:5px;
-  border:4px solid #111; 
-  border-radius:9999px;
-  background:transparent;
-}
-
-.progressbar .track{
-  position:absolute; left:5px; right:5px; top:5px; bottom:5px;
-  background:#fff;
-  border-radius:9999px;
-  overflow:hidden;
-}
-
-.progress-fill{
-  position:absolute; left:0; top:0; bottom:0; width:0%; background:#9dd39a;
-}
-
-
-/* Controles de zoom */
-.zoom-controls {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  display: flex;
-  flex-direction: row;
-  gap: 5px;
-  z-index: 1000;
-
-  display: flex;
-  flex-direction: row !important;
-  gap: 8px;
-  align-items: center;
-  justify-content: center;
-}
-
-
-.zoom-controls button {
-  width: 40px;
-  height: 40px;
-  font-size: 24px;
-  line-height: 40px;
+  box-shadow:var(--shadow);
+  padding:12px; /* Corrigido: ponto e vírgula adicionado */
+  padding-bottom: 120px;
+  box-sizing: border-box;
   text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-
-.zoom-controls button:hover {
-  background: #ffd54f;
-}
-
-/* Fixar área de controles no rodapé */
-.controls {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #ffe082;
-  padding: 10px;
+  overflow: hidden;
+  /* Centralização para Tablet/Desktop */
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-  z-index: 1000;
-  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+  min-height: 75vh;
 }
 
-#svgMount {
-  transform-origin: center top;
-  transition: transform 0.2s ease;
-  margin: 0 auto;
-  display: inline-block;
+.svgMount {
+  width:100%;
+  height: 70vh; /* Altura responsiva baseada na tela */
+  max-height: 85vh;
+  background:#fff;
+  border-radius:14px;
+  position:relative;
+  overflow: hidden;
+  /* Garante que o SVG fique no centro do container */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Garante que o SVG interno se ajuste sem sumir ou subir */
+.svgMount svg {
+  display: block;
+  width: auto !important;
+  height: auto !important;
   max-width: 100%;
-  height: auto;
+  max-height: 100%;
+  object-fit: contain;
 }
 
-/* Setas de navegação no modo zoom */
-.zoom-arrows {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  transform: translateY(-50%);
-  pointer-events: none;
-  z-index: 1100;
+.controls{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  width:90%;max-width:500px;background:rgba(255,255,255,.9);
+  backdrop-filter:blur(8px);padding:16px;border-radius:24px;
+  box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px;
+  z-index:100
 }
+.tools{display:flex;justify-content:space-around;align-items:center}
+.btn{background:#eee;border:0;padding:12px;border-radius:14px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.btn:hover{background:#e2e2e2;transform:scale(1.05)}
+.btn.active{background:var(--accent);color:#fff}
+.btn svg{width:24px;height:24px}
 
-.zoom-arrows button {
-  pointer-events: all;
-  background: rgba(255, 224, 130, 0.9);
-  border: none;
-  font-size: 24px;
-  font-weight: bold;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: none; /* escondidas inicialmente */
+.palette-container {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
 }
-.zoom-arrows button:hover {
-  background: #ffd54f;
-}
+.palette-container::-webkit-scrollbar { height: 4px; }
+.palette-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
 
-.zoom-arrows button {
-  pointer-events: all;
-  background: rgba(255, 224, 130, 0.9);
-  border: none;
-  font-size: 24px;
-  font-weight: bold;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: none; /* escondidas inicialmente */
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-}
-#arrow-left {
-  left: 10px;
-}
-#arrow-right {
-  right: 10px;
-}
-
-/* Responsivo: em telas muito estreitas, empilhar os botões de zoom */
-
-
-
-/* --- Correção de alinhamento da paleta --- */
-
-.swatches {
+.palette {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
   gap: 10px;
-}
-
-.swatch {
-  width: 55px;
-  height: 55px;
-  border-radius: 50%;
-  border: 4px solid white;
-  cursor: pointer;
-}
-
-.swatch.custom {
-  border-radius: 8px; /* quadrado */
-  width: 55px;
-  height: 55px;
-}
-
-/* Responsivo */
-@media (max-width: 600px) {
-  .swatch, .swatch.custom {
-    width: 40px;
-    height: 40px;
-  }
-}
-
-@media (max-width: 400px) {
-  .swatch, .swatch.custom {
-    width: 32px;
-    height: 32px;
-  }
-}
-
-
-
-/* --- Correção final de alinhamento da paleta --- */
-.swatches {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
+  width: max-content;
+  padding: 4px;
 }
 
 .sw {
-  width: 55px;
-  height: 55px;
-  border-radius: 50%;
-  border: 4px solid white;
-  cursor: pointer;
-  padding: 0;
-}
-
-.sw.custom {
-  border-radius: 8px; /* quadrado */
-}
-
-/* Responsivo */
-@media (max-width: 600px) {
-  .sw {
-    width: 40px;
-    height: 40px;
-  }
-}
-
-@media (max-width: 400px) {
-  .sw {
-    width: 32px;
-    height: 32px;
-  }
-}
-
-
-
-/* --- Botão de cor personalizada substituindo input nativo --- */
-.sw.custom {
-  border-radius: 8px;
-  background: #8D6E63; /* cor inicial */
-}
-
-
-
-/* --- Ajuste para iPhone 12 (390px largura) --- */
-@media (max-width: 420px) {
-  .sw {
-    width: 28px !important;
-    height: 28px !important;
-  }
-}
-
-
-
-/* --- Destaque para botão de cor personalizada --- */
-.sw.custom {
-  border: 3px dashed #555 !important;
-  position: relative;
-}
-
-.sw.custom::after {
-  content: "+";
-  color: #555;
-  font-weight: bold;
-  font-size: 18px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-}
-
-
-
-/* --- Paleta responsiva: todos na mesma linha --- */
-.swatches {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  flex-wrap: nowrap; /* nunca quebra */
-}
-
-.sw {
-  flex: 1 1 auto; /* pode encolher conforme tela */
+  flex: 0 0 auto;
+  width: 48px; 
+  height: 48px;
   max-width: 55px;
   aspect-ratio: 1/1;
   border-radius: 50%;
@@ -437,32 +114,7 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sa
   pointer-events: none;
 }
 
-
-
-/* --- Correção: Botões de zoom minimalistas --- */
-#zoom-in,
-#zoom-out {
-  background: none !important;
-  border: none !important;
-  box-shadow: none !important;
-  font-size: 28px;   /* tamanho ajustável */
-  font-weight: bold;
-  color: #333;
-  width: auto !important;
-  height: auto !important;
-  padding: 0 6px;
-  cursor: pointer;
-}
-
-
-
-/* --- Ajuste: alinhar botões + e - na mesma linha --- */
-.zoom-controls {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
+/* --- Botões de zoom --- */
 #zoom-in,
 #zoom-out {
   background: none !important;
@@ -471,33 +123,23 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sa
   font-size: 28px;
   font-weight: bold;
   color: #333;
-  width: 28px;
-  height: 28px;
-  line-height: 28px;
-  text-align: center;
-  padding: 0;
+  width: auto !important;
+  height: auto !important;
+  padding: 0 6px;
   cursor: pointer;
 }
 
-
-
-/* --- Zoom buttons com SVG alinhados --- */
 .zoom-controls {
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-.zoom-btn {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.zoom-btn svg {
-  display: block;
+/* Ajuste específico para Celulares (Mantendo seu design original) */
+@media (max-width:640px){
+  .wrap{padding:8px;gap:10px}
+  .stage{padding:8px; padding-bottom: 130px; min-height: 60vh;}
+  .svgMount { height: auto; aspect-ratio: 3/4; }
+  .btn{padding:10px}
+  .sw { width: 42px; height: 42px; }
 }
