@@ -12,7 +12,7 @@ body {
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
   background: linear-gradient(#fffdf2, #ffe6a7);
   color: #1f2937;
-  overflow: hidden; /* tela fixa */
+  overflow: hidden; 
 }
 
 /* ================= VARIÁVEIS ================= */
@@ -21,66 +21,70 @@ body {
   --accent: #f59e0b;
   --shadow: 0 12px 28px rgba(0,0,0,.12);
   --radius: 18px;
+  --topbar-h: 70px; /* Altura aproximada da topbar */
 }
 
 /* ================= TOPBAR ================= */
 .topbar {
-  padding: 12px 16px;
+  height: var(--topbar-h);
+  padding: 8px 16px;
   display: flex;
   justify-content: flex-end;
+  align-items: center;
 }
 
 /* ================= APP LAYOUT ================= */
 .app {
-  height: calc(100vh - 80px); /* desconta topbar */
+  /* Ocupa exatamente o que sobra da tela abaixo da topbar */
+  height: calc(100vh - var(--topbar-h)); 
   display: flex;
   flex-direction: column;
 }
 
 /* ================= STAGE (CANVAS) ================= */
 .stage {
-  flex: 1;
+  flex: 1; /* Cresce para ocupar o espaço disponível */
+  min-height: 0; /* ESSENCIAL: Permite que o flex child encolha se necessário */
   background: var(--panel);
-  margin: 0 12px;
+  margin: 0 12px 8px; /* Pequena margem inferior */
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  overflow: hidden;                 /* 👈 essencial */
   display: flex;
   justify-content: center;
-  align-items: flex-end;            /* 👈 ancora no fundo */
+  align-items: center; /* Centraliza o desenho verticalmente */
+  overflow: hidden; 
 }
 
 /* ================= SVG ================= */
 .svgMount {
   width: 100%;
-  max-width: 1024px;
   height: 100%;
+  padding: 10px;
   display: flex;
   justify-content: center;
-  align-items: flex-end;            /* 👈 idem */
+  align-items: center;
 }
 
 .svgMount svg {
-  width: 100%;
-  height: auto;
+  /* Estas regras garantem que o SVG nunca ultrapasse os limites da área branca */
+  max-width: 100%;
   max-height: 100%;
+  width: auto;
+  height: auto;
   display: block;
-  preserveAspectRatio: xMidYMax meet; /* 👈 prioridade na base */
 }
 
-/* ================= CONTROLS (FIXO) ================= */
+/* ================= CONTROLS (NÃO MAIS FIXO) ================= */
 .controls {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  /* Removido o position: fixed para ele ocupar espaço real no fluxo da página */
   background: #ffe082;
-  box-shadow: 0 -2px 8px rgba(0,0,0,.15);
-  padding: 10px 8px 12px;
+  box-shadow: 0 -2px 8px rgba(0,0,0,.1);
+  padding: 10px 8px env(safe-area-inset-bottom, 12px); /* Suporte a notched phones */
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   z-index: 1000;
+  flex-shrink: 0; /* Impede que o rodapé seja esmagado */
 }
 
 /* ================= PALETA ================= */
@@ -95,11 +99,14 @@ body {
   justify-content: center;
   align-items: center;
   flex-wrap: nowrap;
+  overflow-x: auto; /* Permite scroll se as cores não couberem */
+  padding-bottom: 4px;
 }
 
 .sw {
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
   border-radius: 50%;
   border: 3px solid #fff;
   background: var(--c);
@@ -112,18 +119,16 @@ body {
   border-radius: 8px;
   border: 3px dashed #555;
   background: #e0c2a2;
-  position: relative;
 }
 
 .sw.custom::after {
   content: "+";
-  position: absolute;
-  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
   color: #555;
+  height: 100%;
 }
 
 .sw.custom-picker {
@@ -136,18 +141,18 @@ body {
 .tools {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .btn {
   border: none;
   border-radius: 12px;
-  padding: 10px 14px;
+  padding: 8px 12px;
   background: #ffb703;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: var(--shadow);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  font-size: 14px;
 }
 
 .btn.primary {
@@ -161,94 +166,35 @@ body {
   justify-content: center;
   align-items: center;
   gap: 12px;
+  font-size: 14px;
 }
 
 .navbtn {
-  min-width: 42px;
-  min-height: 36px;
-  border-radius: 10px;
+  width: 40px;
+  height: 32px;
+  border-radius: 8px;
   border: none;
   background: #ffd166;
   cursor: pointer;
-  box-shadow: var(--shadow);
-}
-
-/* ================= PROGRESS ================= */
-.progress-widget {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-  max-width: min(620px, 92vw);
-}
-
-.progress-widget .counter {
-  font-weight: 800;
-  font-size: clamp(16px, 2.4vw, 26px);
-}
-
-.progressbar {
-  width: min(560px, 92vw);
-  height: 42px;
-  padding: 5px;
-  border: 4px solid #111;
-  border-radius: 9999px;
-  background: transparent;
-}
-
-.progressbar .track {
-  background: #fff;
-  border-radius: 9999px;
-  height: 100%;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  width: 0%;
-  background: #9dd39a;
-}
-
-/* ================= POPUP PALETA ================= */
-.palette-popup {
-  position: fixed;
-  background: #fff;
-  border: 2px solid #ffd54f;
-  border-radius: 14px;
-  padding: 10px;
-  display: grid;
-  grid-template-columns: repeat(6, 28px);
-  gap: 6px;
-  box-shadow: 0 6px 16px rgba(0,0,0,.18);
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(8px) scale(.96);
-  transition: .2s ease;
-  z-index: 2000;
-}
-
-.palette-popup.active {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0) scale(1);
-}
-
-.extra-color {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  cursor: pointer;
-  border: 2px solid rgba(0,0,0,.1);
 }
 
 /* ================= RESPONSIVO ================= */
 @media (max-width: 600px) {
   .sw {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
   }
-
+  
   .btn {
-    padding: 8px 12px;
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+  
+  /* Ajuste para telas muito baixas */
+  @media (max-height: 600px) {
+    .controls { gap: 4px; padding: 6px 8px; }
+    .sw { width: 32px; height: 32px; }
+    .topbar { height: 50px; }
+    :root { --topbar-h: 50px; }
   }
 }
