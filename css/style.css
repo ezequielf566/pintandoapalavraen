@@ -13,46 +13,33 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sa
 .pill{background:#fff;border:0;border-radius:9999px;padding:8px 14px;box-shadow:var(--shadow);cursor:pointer;display:flex;gap:8px;align-items:center;font-weight:700}
 
 .wrap{max-width:1024px;margin:0 auto;padding:12px;display:flex;flex-direction:column;gap:14px}
-
-/* CORREÇÃO NA STAGE: Adicionado ; e centralização flex */
-.stage {
-  background:#fff;
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  padding:12px; 
+.stage {background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:12px
   padding-bottom: 120px;
   box-sizing: border-box;
+
   text-align: center;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 70vh;
+  overflow: auto;
 }
 
-/* CORREÇÃO NA SVGMOUNT: Altura baseada na tela (vh) em vez de proporção fixa */
+/* AJUSTE PARA TABLET/TELA GRANDE */
 .svgMount {
-  width:100%;
-  height: 70vh;
-  max-height: 80vh;
-  background:#fff;
-  border-radius:14px;
-  position:relative;
+  width: 100%;
+  height: 70vh; /* Ocupa 70% da altura da tela no tablet */
+  background: #fff;
+  border-radius: 14px;
+  position: relative;
   overflow: hidden;
-  display: flex;
-  align-items: center;
+  display: flex;       /* Centraliza a arte */
+  align-items: center;  /* Não deixa subir */
   justify-content: center;
 }
 
-/* Ajuste para o SVG interno preencher o container sem sobrar espaço */
 .svgMount svg {
-  display: block;
-  width: auto !important;
-  height: auto !important;
+  width: auto;
+  height: auto;
   max-width: 100%;
   max-height: 100%;
-  object-fit: contain;
+  display: block;
 }
 
 .controls{
@@ -74,8 +61,13 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sa
   padding-bottom: 8px;
   -webkit-overflow-scrolling: touch;
 }
-.palette-container::-webkit-scrollbar { height: 4px; }
-.palette-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+.palette-container::-webkit-scrollbar {
+  height: 4px;
+}
+.palette-container::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
 
 .palette {
   display: flex;
@@ -134,11 +126,17 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sa
   gap: 6px;
 }
 
-/* Ajuste específico para Celulares para manter seu design original */
+/* MANTÉM O CELULAR IGUAL VOCÊ GOSTA */
 @media (max-width:640px){
   .wrap{padding:8px;gap:10px}
   .stage{padding:8px; padding-bottom: 130px;}
-  .svgMount { height: auto; aspect-ratio: 3/4; }
+  .svgMount {
+    height: auto;
+    aspect-ratio: 3/4; /* Volta para o formato original no celular */
+  }
   .btn{padding:10px}
-  .sw { width: 42px; height: 42px; }
+  .sw {
+    width: 42px;
+    height: 42px;
+  }
 }
