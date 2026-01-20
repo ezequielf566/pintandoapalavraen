@@ -2,13 +2,73 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Pintando a Palavra — Colorir</title>
 
   <link rel="stylesheet" href="css/style.css" />
 
-  <!-- ===== Tela de loading ===== -->
   <style>
+    /* ===== FIX 1: TELA FIXA (Prevenir scroll da página inteira) ===== */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden; /* Impede scroll do body */
+      position: fixed; /* Evita bounce em iOS */
+    }
+
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh; /* Ocupa a altura real da tela */
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    /* O Stage é onde o SVG vive. Apenas ele permite interação. */
+    .stage {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      touch-action: none; /* Crucial: Impede o navegador de arrastar a página */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fdfdfd;
+    }
+
+    .svgMount {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ===== Estilo do Popup (Garantir transição suave) ===== */
+    .palette-popup {
+      position: fixed; /* Mudar para fixed para facilitar cálculo de viewport */
+      z-index: 1000;
+      background: white;
+      padding: 10px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+    }
+    .palette-popup.active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    /* ===== Loading Overlay ===== */
     #loadingOverlay{
       position:fixed;
       inset:0;
@@ -35,13 +95,11 @@
 
 <body>
 
-<!-- ===== Loading ===== -->
 <div id="loadingOverlay">
   <div class="spinner"></div>
-  <div>🎨 Loading illustrations...</div>
+  <div>🎨 Carregando ilustrações...</div>
 </div>
 
-<!-- ===== Topbar ===== -->
 <header class="topbar">
   <div id="progressWidget" class="progress-widget">
     <div class="counter">
@@ -59,21 +117,14 @@
   </div>
 </header>
 
-<!-- ===== APP ROOT ===== -->
 <div class="app">
-
-  <!-- ===== STAGE (canvas livre) ===== -->
   <main class="stage">
     <div id="svgMount" class="svgMount"></div>
   </main>
 
-  <!-- ===== CONTROLES FIXOS ===== -->
   <footer class="controls">
-
-    <!-- Paleta -->
     <div class="palette">
       <div class="swatches" id="swatches">
-
         <button class="sw" data-color="#E53935" style="--c:#E53935"></button>
         <button class="sw" data-color="#FB8C00" style="--c:#FB8C00"></button>
         <button class="sw" data-color="#FDD835" style="--c:#FDD835"></button>
@@ -83,107 +134,143 @@
         <button class="sw" data-color="#E0C2A2" style="--c:#E0C2A2"></button>
         <button class="sw" data-color="#8D6E63" style="--c:#8D6E63"></button>
 
-        <!-- Picker -->
         <button class="sw custom-picker" id="pickerBtn">🎨</button>
         <input type="color" id="colorPickerInput" style="display:none">
-
-        <!-- Extra -->
         <button class="sw custom" id="customColorBtn">+</button>
       </div>
     </div>
 
-    <!-- Ferramentas -->
     <div class="tools">
-      <button id="eraserBtn" class="btn">Eraser</button>
-      <button id="undoBtn" class="btn">Undo</button>
-      <button id="redoBtn" class="btn">Redo</button>
-      <button id="savePng" class="btn primary">Save</button>
+      <button id="eraserBtn" class="btn">Borracha</button>
+      <button id="undoBtn" class="btn">Desfazer</button>
+      <button id="redoBtn" class="btn">Refazer</button>
+      <button id="savePng" class="btn primary">Salvar</button>
     </div>
 
-    <!-- Paginação -->
     <div class="pager">
       <button id="prevBtn" class="navbtn">◀</button>
       <span id="pageLabel">1 / ?</span>
       <button id="nextBtn" class="navbtn">▶</button>
     </div>
-
   </footer>
 </div>
 
-<!-- ===== SCRIPTS ORIGINAIS (SEM ADMOB) ===== -->
 <script src="js/pintura.js"></script>
 <script src="js/script.js"></script>
 <script src="js/patch-gestures-scroll.js"></script>
 
-<!-- ===== Popup de cores + picker ===== -->
 <script>
-document.addEventListener("DOMContentLoaded",()=>{
-  const customBtn=document.getElementById("customColorBtn");
-  const pickerBtn=document.getElementById("pickerBtn");
-  const pickerInput=document.getElementById("colorPickerInput");
-  let popup=null;
+document.addEventListener("DOMContentLoaded", () => {
+  const customBtn = document.getElementById("customColorBtn");
+  const pickerBtn = document.getElementById("pickerBtn");
+  const pickerInput = document.getElementById("colorPickerInput");
+  let popup = null;
 
-  const COLORS=[
+  const COLORS = [
     "#FF6F61","#F06292","#BA68C8","#9575CD","#4FC3F7","#4DD0E1",
     "#81C784","#AED581","#FFD54F","#FFB74D","#A1887F","#BDBDBD"
   ];
 
-  function close(){
-    if(!popup)return;
-    popup.remove();
-    popup=null;
+  function close() {
+    if(!popup) return;
+    popup.classList.remove("active");
+    setTimeout(() => { if(popup) popup.remove(); popup = null; }, 200);
     customBtn.classList.remove("active");
-    document.removeEventListener("click",outside);
+    document.removeEventListener("mousedown", outside);
+    document.removeEventListener("touchstart", outside);
   }
 
-  function outside(e){
-    if(popup&&!popup.contains(e.target)&&e.target!==customBtn)close();
+  function outside(e) {
+    if(popup && !popup.contains(e.target) && e.target !== customBtn) close();
   }
 
-  function open(){
+  function open() {
     close();
-    popup=document.createElement("div");
-    popup.className="palette-popup";
-    COLORS.forEach(c=>{
-      const d=document.createElement("div");
-      d.className="extra-color";
-      d.style.background=c;
-      d.onclick=()=>{
-        window.setColor?.(c);
-        close();
-      };
+    popup = document.createElement("div");
+    popup.className = "palette-popup";
+    
+    COLORS.forEach(c => {
+      const d = document.createElement("div");
+      d.className = "extra-color";
+      d.style.background = c;
+      d.style.width = "40px";
+      d.style.height = "40px";
+      d.style.borderRadius = "50%";
+      d.onclick = () => { window.setColor?.(c); close(); };
       popup.appendChild(d);
     });
+
     document.body.appendChild(popup);
-    const r=customBtn.getBoundingClientRect();
-    popup.style.left=r.left+"px";
-    popup.style.top=(r.top-popup.offsetHeight-8)+"px";
-    requestAnimationFrame(()=>popup.classList.add("active"));
-    document.addEventListener("click",outside);
+
+    // FIX: Cálculo de centralização com travas de borda
+    const r = customBtn.getBoundingClientRect();
+    const popupWidth = 200; // Largura aproximada baseada no grid
+    const screenWidth = window.innerWidth;
+
+    let leftPos = r.left + (r.width / 2) - (popupWidth / 2);
+
+    // Não deixa sair pela direita nem pela esquerda
+    if (leftPos + popupWidth > screenWidth - 15) leftPos = screenWidth - popupWidth - 15;
+    if (leftPos < 15) leftPos = 15;
+
+    popup.style.left = leftPos + "px";
+    popup.style.top = (r.top - 200) + "px"; // Ajuste manual ou auto
+
+    // Ajuste fino de altura após render
+    requestAnimationFrame(() => {
+        popup.style.top = (r.top - popup.offsetHeight - 12) + "px";
+        popup.classList.add("active");
+    });
+
+    document.addEventListener("mousedown", outside);
+    document.addEventListener("touchstart", outside);
   }
 
-  customBtn.onclick=e=>{
+  customBtn.onclick = e => {
     e.stopPropagation();
-    popup?close():open();
+    popup ? close() : open();
   };
 
-  pickerBtn.onclick=()=>pickerInput.click();
-  pickerInput.oninput=e=>{
-    window.setColor?.(e.target.value);
-  };
+  pickerBtn.onclick = () => pickerInput.click();
+  pickerInput.oninput = e => { window.setColor?.(e.target.value); };
 });
 </script>
 
-<!-- ===== Loading observer ===== -->
 <script>
-const overlay=document.getElementById("loadingOverlay");
-const obs=new MutationObserver(()=>{
-  if(document.querySelector("#svgMount svg")){
-    setTimeout(()=>overlay.classList.add("hidden"),400);
-    obs.disconnect();
+  // Monitora mudanças no SVG para garantir reset de posição
+  const mount = document.getElementById("svgMount");
+  
+  // Função para resetar visualmente o SVG quando a escala for 1
+  function resetSvgTransform() {
+    const svg = mount.querySelector("svg");
+    if (!svg) return;
+    
+    // Se seu script 'pintura.js' usa style.transform, nós resetamos o translate
+    // Isso é disparado se detectarmos que o usuário quer o estado original
+    if (svg.style.transform.includes("scale(1)") || svg.style.transform === "") {
+        svg.style.transform = "translate(0px, 0px) scale(1)";
+    }
   }
-});
-obs.observe(document.getElementById("svgMount"),{childList:true,subtree:true});
+
+  // Observer para esconder loading
+  const overlay = document.getElementById("loadingOverlay");
+  const obs = new MutationObserver(() => {
+    if(document.querySelector("#svgMount svg")){
+      setTimeout(() => {
+          overlay.classList.add("hidden");
+          resetSvgTransform();
+      }, 400);
+      obs.disconnect();
+    }
+  });
+  obs.observe(mount, {childList:true, subtree:true});
+
+  // Listener opcional: se o usuário clicar no pager, resetar zoom
+  document.querySelectorAll('.navbtn').forEach(btn => {
+      btn.addEventListener('click', () => {
+          setTimeout(resetSvgTransform, 50);
+      });
+  });
 </script>
 
 </body>
