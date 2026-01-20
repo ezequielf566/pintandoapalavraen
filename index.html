@@ -8,37 +8,36 @@
   <link rel="stylesheet" href="css/style.css" />
 
   <style>
-    /* ===== FIX 1: TELA FIXA (Prevenir scroll da página inteira) ===== */
+    /* ===== FIX 1: ESTRUTURA E ZOOM ISOLADO ===== */
     html, body {
       margin: 0;
       padding: 0;
       width: 100%;
       height: 100%;
-      overflow: hidden; /* Impede scroll do body */
-      position: fixed; /* Evita bounce em iOS */
+      overflow: hidden; /* Impede que o navegador role a página toda */
+      background: #fff9e6;
     }
 
     .app {
       display: flex;
       flex-direction: column;
-      height: 100vh; /* Ocupa a altura real da tela */
+      height: 100vh;
       width: 100vw;
-      overflow: hidden;
     }
 
-    /* O Stage é onde o SVG vive. Apenas ele permite interação. */
+    /* O Stage agora ocupa todo o espaço central sem esmagar o desenho */
     .stage {
       flex: 1;
       position: relative;
-      overflow: hidden;
-      touch-action: none; /* Crucial: Impede o navegador de arrastar a página */
+      overflow: hidden; 
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #fdfdfd;
+      touch-action: none; /* Bloqueia zoom nativo do browser apenas aqui */
+      z-index: 1;
     }
 
-    .svgMount {
+    #svgMount {
       width: 100%;
       height: 100%;
       display: flex;
@@ -46,29 +45,51 @@
       justify-content: center;
     }
 
-    /* ===== Estilo do Popup (Garantir transição suave) ===== */
-    .palette-popup {
-      position: fixed; /* Mudar para fixed para facilitar cálculo de viewport */
-      z-index: 1000;
-      background: white;
-      padding: 10px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: opacity 0.2s, transform 0.2s;
-      pointer-events: none;
-    }
-    .palette-popup.active {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
+    /* Garante que o SVG não seja cortado e mantenha proporção */
+    #svgMount svg {
+      max-width: 100%;
+      max-height: 100%;
+      display: block;
+      margin: auto;
     }
 
-    /* ===== Loading Overlay ===== */
+    /* UI Fixa */
+    .topbar, .controls {
+      position: relative;
+      z-index: 10; /* Fica acima do stage */
+      flex-shrink: 0; /* Não deixa a UI ser esmagada */
+    }
+
+    /* ===== FIX 2: POPUP RECALCULADO ===== */
+    .palette-popup {
+      position: fixed;
+      z-index: 9999;
+      background: #fff;
+      padding: 12px;
+      border-radius: 15px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      visibility: hidden;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.2s ease;
+    }
+    .palette-popup.active {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .extra-color {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #eee;
+      cursor: pointer;
+    }
+
+    /* ===== Loading ===== */
     #loadingOverlay{
       position:fixed;
       inset:0;
@@ -77,7 +98,7 @@
       flex-direction:column;
       align-items:center;
       justify-content:center;
-      z-index:9999;
+      z-index:10000;
       transition:opacity .4s ease, visibility .4s ease;
     }
     #loadingOverlay.hidden{opacity:0;visibility:hidden}
@@ -160,117 +181,105 @@
 <script src="js/patch-gestures-scroll.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const customBtn = document.getElementById("customColorBtn");
-  const pickerBtn = document.getElementById("pickerBtn");
-  const pickerInput = document.getElementById("colorPickerInput");
-  let popup = null;
+document.addEventListener("DOMContentLoaded",()=>{
+  const customBtn=document.getElementById("customColorBtn");
+  const pickerBtn=document.getElementById("pickerBtn");
+  const pickerInput=document.getElementById("colorPickerInput");
+  let popup=null;
 
-  const COLORS = [
+  const COLORS=[
     "#FF6F61","#F06292","#BA68C8","#9575CD","#4FC3F7","#4DD0E1",
     "#81C784","#AED581","#FFD54F","#FFB74D","#A1887F","#BDBDBD"
   ];
 
-  function close() {
-    if(!popup) return;
+  function close(){
+    if(!popup)return;
     popup.classList.remove("active");
-    setTimeout(() => { if(popup) popup.remove(); popup = null; }, 200);
+    setTimeout(()=> { if(popup) { popup.remove(); popup=null; } }, 200);
     customBtn.classList.remove("active");
-    document.removeEventListener("mousedown", outside);
-    document.removeEventListener("touchstart", outside);
+    document.removeEventListener("click",outside);
   }
 
-  function outside(e) {
-    if(popup && !popup.contains(e.target) && e.target !== customBtn) close();
+  function outside(e){
+    if(popup&&!popup.contains(e.target)&&e.target!==customBtn)close();
   }
 
-  function open() {
+  function open(){
     close();
-    popup = document.createElement("div");
-    popup.className = "palette-popup";
-    
-    COLORS.forEach(c => {
-      const d = document.createElement("div");
-      d.className = "extra-color";
-      d.style.background = c;
-      d.style.width = "40px";
-      d.style.height = "40px";
-      d.style.borderRadius = "50%";
-      d.onclick = () => { window.setColor?.(c); close(); };
+    popup=document.createElement("div");
+    popup.className="palette-popup";
+    COLORS.forEach(c=>{
+      const d=document.createElement("div");
+      d.className="extra-color";
+      d.style.background=c;
+      d.onclick=()=>{
+        window.setColor?.(c);
+        close();
+      };
       popup.appendChild(d);
     });
-
     document.body.appendChild(popup);
 
-    // FIX: Cálculo de centralização com travas de borda
-    const r = customBtn.getBoundingClientRect();
-    const popupWidth = 200; // Largura aproximada baseada no grid
-    const screenWidth = window.innerWidth;
+    // FIX: POSICIONAMENTO DINÂMICO
+    const r=customBtn.getBoundingClientRect();
+    const popupWidth = 210; // Largura aproximada do grid
+    let left = r.left + (r.width/2) - (popupWidth/2);
+    
+    // Ajuste para não sair da tela
+    if(left < 10) left = 10;
+    if(left + popupWidth > window.innerWidth) left = window.innerWidth - popupWidth - 10;
 
-    let leftPos = r.left + (r.width / 2) - (popupWidth / 2);
-
-    // Não deixa sair pela direita nem pela esquerda
-    if (leftPos + popupWidth > screenWidth - 15) leftPos = screenWidth - popupWidth - 15;
-    if (leftPos < 15) leftPos = 15;
-
-    popup.style.left = leftPos + "px";
-    popup.style.top = (r.top - 200) + "px"; // Ajuste manual ou auto
-
-    // Ajuste fino de altura após render
-    requestAnimationFrame(() => {
-        popup.style.top = (r.top - popup.offsetHeight - 12) + "px";
-        popup.classList.add("active");
+    popup.style.left = left + "px";
+    
+    // Posiciona acima do botão
+    requestAnimationFrame(()=>{
+      popup.style.top = (r.top - popup.offsetHeight - 10) + "px";
+      popup.classList.add("active");
     });
 
-    document.addEventListener("mousedown", outside);
-    document.addEventListener("touchstart", outside);
+    setTimeout(()=> document.addEventListener("click",outside), 50);
   }
 
-  customBtn.onclick = e => {
+  customBtn.onclick=e=>{
     e.stopPropagation();
-    popup ? close() : open();
+    popup?close():open();
   };
 
-  pickerBtn.onclick = () => pickerInput.click();
-  pickerInput.oninput = e => { window.setColor?.(e.target.value); };
+  pickerBtn.onclick=()=>pickerInput.click();
+  pickerInput.oninput=e=>{
+    window.setColor?.(e.target.value);
+  };
 });
-</script>
 
-<script>
-  // Monitora mudanças no SVG para garantir reset de posição
-  const mount = document.getElementById("svgMount");
+// ===== FIX 3: RESET AUTOMÁTICO DO ZOOM =====
+// Esta função monitora se o zoom voltou ao normal e recentraliza o SVG
+function autoResetSVG() {
+  const svg = document.querySelector("#svgMount svg");
+  if(!svg) return;
+
+  // Se o seu script de zoom usa transform, verificamos a escala
+  const style = window.getComputedStyle(svg);
+  const matrix = new DOMMatrixReadOnly(style.transform);
   
-  // Função para resetar visualmente o SVG quando a escala for 1
-  function resetSvgTransform() {
-    const svg = mount.querySelector("svg");
-    if (!svg) return;
-    
-    // Se seu script 'pintura.js' usa style.transform, nós resetamos o translate
-    // Isso é disparado se detectarmos que o usuário quer o estado original
-    if (svg.style.transform.includes("scale(1)") || svg.style.transform === "") {
-        svg.style.transform = "translate(0px, 0px) scale(1)";
-    }
+  // Se a escala for 1 (ou muito próxima), resetamos a posição para o centro
+  if (Math.abs(matrix.a - 1) < 0.01) {
+    svg.style.transform = "translate(0px, 0px) scale(1)";
   }
+}
 
-  // Observer para esconder loading
-  const overlay = document.getElementById("loadingOverlay");
-  const obs = new MutationObserver(() => {
-    if(document.querySelector("#svgMount svg")){
-      setTimeout(() => {
-          overlay.classList.add("hidden");
-          resetSvgTransform();
-      }, 400);
-      obs.disconnect();
-    }
-  });
-  obs.observe(mount, {childList:true, subtree:true});
+// Executa o reset ao trocar de página
+document.getElementById("prevBtn").addEventListener("click", () => setTimeout(autoResetSVG, 100));
+document.getElementById("nextBtn").addEventListener("click", () => setTimeout(autoResetSVG, 100));
 
-  // Listener opcional: se o usuário clicar no pager, resetar zoom
-  document.querySelectorAll('.navbtn').forEach(btn => {
-      btn.addEventListener('click', () => {
-          setTimeout(resetSvgTransform, 50);
-      });
-  });
+// Observer para esconder o loading
+const overlay=document.getElementById("loadingOverlay");
+const obs=new MutationObserver(()=>{
+  if(document.querySelector("#svgMount svg")){
+    setTimeout(()=>overlay.classList.add("hidden"),400);
+    obs.disconnect();
+  }
+});
+obs.observe(document.getElementById("svgMount"),{childList:true,subtree:true});
 </script>
 
 </body>
