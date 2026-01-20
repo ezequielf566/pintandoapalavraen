@@ -2,94 +2,12 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Pintando a Palavra — Colorir</title>
 
   <link rel="stylesheet" href="css/style.css" />
 
   <style>
-    /* ===== FIX 1: ESTRUTURA E ZOOM ISOLADO ===== */
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden; /* Impede que o navegador role a página toda */
-      background: #fff9e6;
-    }
-
-    .app {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      width: 100vw;
-    }
-
-    /* O Stage agora ocupa todo o espaço central sem esmagar o desenho */
-    .stage {
-      flex: 1;
-      position: relative;
-      overflow: hidden; 
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      touch-action: none; /* Bloqueia zoom nativo do browser apenas aqui */
-      z-index: 1;
-    }
-
-    #svgMount {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* Garante que o SVG não seja cortado e mantenha proporção */
-    #svgMount svg {
-      max-width: 100%;
-      max-height: 100%;
-      display: block;
-      margin: auto;
-    }
-
-    /* UI Fixa */
-    .topbar, .controls {
-      position: relative;
-      z-index: 10; /* Fica acima do stage */
-      flex-shrink: 0; /* Não deixa a UI ser esmagada */
-    }
-
-    /* ===== FIX 2: POPUP RECALCULADO ===== */
-    .palette-popup {
-      position: fixed;
-      z-index: 9999;
-      background: #fff;
-      padding: 12px;
-      border-radius: 15px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      visibility: hidden;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: all 0.2s ease;
-    }
-    .palette-popup.active {
-      visibility: visible;
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .extra-color {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: 2px solid #eee;
-      cursor: pointer;
-    }
-
-    /* ===== Loading ===== */
     #loadingOverlay{
       position:fixed;
       inset:0;
@@ -98,7 +16,7 @@
       flex-direction:column;
       align-items:center;
       justify-content:center;
-      z-index:10000;
+      z-index:9999;
       transition:opacity .4s ease, visibility .4s ease;
     }
     #loadingOverlay.hidden{opacity:0;visibility:hidden}
@@ -111,6 +29,21 @@
       margin-bottom:14px;
     }
     @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* Ajuste preventivo para o popup não quebrar layout */
+    .palette-popup {
+      position: fixed;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      z-index: 10000;
+      max-width: 200px; /* Garante que não fique largo demais */
+      justify-content: center;
+    }
   </style>
 </head>
 
@@ -118,7 +51,7 @@
 
 <div id="loadingOverlay">
   <div class="spinner"></div>
-  <div>🎨 Carregando ilustrações...</div>
+  <div>🎨 Loading illustrations...</div>
 </div>
 
 <header class="topbar">
@@ -139,13 +72,16 @@
 </header>
 
 <div class="app">
+
   <main class="stage">
     <div id="svgMount" class="svgMount"></div>
   </main>
 
   <footer class="controls">
+
     <div class="palette">
       <div class="swatches" id="swatches">
+
         <button class="sw" data-color="#E53935" style="--c:#E53935"></button>
         <button class="sw" data-color="#FB8C00" style="--c:#FB8C00"></button>
         <button class="sw" data-color="#FDD835" style="--c:#FDD835"></button>
@@ -157,15 +93,16 @@
 
         <button class="sw custom-picker" id="pickerBtn">🎨</button>
         <input type="color" id="colorPickerInput" style="display:none">
+
         <button class="sw custom" id="customColorBtn">+</button>
       </div>
     </div>
 
     <div class="tools">
-      <button id="eraserBtn" class="btn">Borracha</button>
-      <button id="undoBtn" class="btn">Desfazer</button>
-      <button id="redoBtn" class="btn">Refazer</button>
-      <button id="savePng" class="btn primary">Salvar</button>
+      <button id="eraserBtn" class="btn">Eraser</button>
+      <button id="undoBtn" class="btn">Undo</button>
+      <button id="redoBtn" class="btn">Redo</button>
+      <button id="savePng" class="btn primary">Save</button>
     </div>
 
     <div class="pager">
@@ -173,6 +110,7 @@
       <span id="pageLabel">1 / ?</span>
       <button id="nextBtn" class="navbtn">▶</button>
     </div>
+
   </footer>
 </div>
 
@@ -194,8 +132,8 @@ document.addEventListener("DOMContentLoaded",()=>{
 
   function close(){
     if(!popup)return;
-    popup.classList.remove("active");
-    setTimeout(()=> { if(popup) { popup.remove(); popup=null; } }, 200);
+    popup.remove();
+    popup=null;
     customBtn.classList.remove("active");
     document.removeEventListener("click",outside);
   }
@@ -212,6 +150,12 @@ document.addEventListener("DOMContentLoaded",()=>{
       const d=document.createElement("div");
       d.className="extra-color";
       d.style.background=c;
+      // Adicionado estilo inline para garantir que as cores apareçam como círculos/quadrados
+      d.style.width="35px";
+      d.style.height="35px";
+      d.style.borderRadius="50%";
+      d.style.cursor="pointer";
+      
       d.onclick=()=>{
         window.setColor?.(c);
         close();
@@ -219,25 +163,15 @@ document.addEventListener("DOMContentLoaded",()=>{
       popup.appendChild(d);
     });
     document.body.appendChild(popup);
-
-    // FIX: POSICIONAMENTO DINÂMICO
+    
     const r=customBtn.getBoundingClientRect();
-    const popupWidth = 210; // Largura aproximada do grid
-    let left = r.left + (r.width/2) - (popupWidth/2);
     
-    // Ajuste para não sair da tela
-    if(left < 10) left = 10;
-    if(left + popupWidth > window.innerWidth) left = window.innerWidth - popupWidth - 10;
-
-    popup.style.left = left + "px";
+    // CORREÇÃO AQUI: Alinhamos pela direita do botão para não sair da tela
+    popup.style.right=(window.innerWidth - r.right)+"px";
+    popup.style.top=(r.top-popup.offsetHeight-12)+"px";
     
-    // Posiciona acima do botão
-    requestAnimationFrame(()=>{
-      popup.style.top = (r.top - popup.offsetHeight - 10) + "px";
-      popup.classList.add("active");
-    });
-
-    setTimeout(()=> document.addEventListener("click",outside), 50);
+    requestAnimationFrame(()=>popup.classList.add("active"));
+    document.addEventListener("click",outside);
   }
 
   customBtn.onclick=e=>{
@@ -250,28 +184,9 @@ document.addEventListener("DOMContentLoaded",()=>{
     window.setColor?.(e.target.value);
   };
 });
+</script>
 
-// ===== FIX 3: RESET AUTOMÁTICO DO ZOOM =====
-// Esta função monitora se o zoom voltou ao normal e recentraliza o SVG
-function autoResetSVG() {
-  const svg = document.querySelector("#svgMount svg");
-  if(!svg) return;
-
-  // Se o seu script de zoom usa transform, verificamos a escala
-  const style = window.getComputedStyle(svg);
-  const matrix = new DOMMatrixReadOnly(style.transform);
-  
-  // Se a escala for 1 (ou muito próxima), resetamos a posição para o centro
-  if (Math.abs(matrix.a - 1) < 0.01) {
-    svg.style.transform = "translate(0px, 0px) scale(1)";
-  }
-}
-
-// Executa o reset ao trocar de página
-document.getElementById("prevBtn").addEventListener("click", () => setTimeout(autoResetSVG, 100));
-document.getElementById("nextBtn").addEventListener("click", () => setTimeout(autoResetSVG, 100));
-
-// Observer para esconder o loading
+<script>
 const overlay=document.getElementById("loadingOverlay");
 const obs=new MutationObserver(()=>{
   if(document.querySelector("#svgMount svg")){
