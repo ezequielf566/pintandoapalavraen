@@ -17,12 +17,28 @@
     html,body{height:100%; margin:0; font-family:system-ui,sans-serif; overflow: hidden;}
     body{ background:linear-gradient(var(--bg1),var(--bg2)); display: flex; flex-direction: column; }
 
-    /* TOPBAR E PROGRESSO */
+    /* TOPBAR E PROGRESSO (MAIS BONITO) */
     .topbar{ flex: 0 0 auto; display:flex; justify-content:flex-end; padding:10px 16px; z-index: 10; }
-    .progress-widget { display:flex; flex-direction:column; align-items:flex-end; gap:2px; }
-    .counter { font-weight:800; font-size: 14px; }
-    .progressbar { width: 180px; height:12px; background: #fff; border: 2px solid #111; border-radius: 10px; overflow: hidden; position: relative;}
-    .progress-fill { position:absolute; left:0; top:0; height: 100%; background:#9dd39a; width: 0%; transition: width 0.3s; }
+    .progress-widget { display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
+    .counter { font-weight:800; font-size: 15px; color: #444; text-shadow: 0 1px 0 #fff; }
+    
+    .progressbar { 
+      width: 180px; height:16px; background: #eee; 
+      border: 2px solid #555; border-radius: 12px; 
+      overflow: hidden; position: relative;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .progress-fill { 
+      position:absolute; left:0; top:0; height: 100%; 
+      background: linear-gradient(to bottom, #a2e0a2, #76c776); /* Gradiente */
+      width: 0%; transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+      border-right: 1px solid rgba(0,0,0,0.1);
+    }
+    /* Brilho na barra de progresso */
+    .progress-fill::after {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 40%;
+      background: rgba(255,255,255,0.3); border-radius: 10px; margin: 1px;
+    }
 
     /* ÁREA DO DESENHO */
     .wrap { flex: 1; display:flex; flex-direction:column; width: 100%; max-width:1024px; margin:0 auto; padding:8px; overflow: hidden; }
@@ -30,19 +46,12 @@
 
     /* CONTROLES - FILA ÚNICA FIXA */
     .controls {
-      flex: 0 0 auto;
-      background: #ffe082;
-      padding: 10px 8px 6px 8px;
+      flex: 0 0 auto; background: #ffe082; padding: 10px 8px 6px 8px;
       display: flex; flex-direction: column; align-items: center; gap: 8px;
-      z-index: 100;
-      box-shadow: 0 -4px 15px rgba(0,0,0,0.08);
-      border-radius: 24px 24px 0 0;
+      z-index: 100; box-shadow: 0 -4px 15px rgba(0,0,0,0.08); border-radius: 24px 24px 0 0;
     }
 
-    .swatches {
-      display: flex; justify-content: space-between; align-items: center;
-      width: 100%; max-width: 500px; gap: 4px; flex-wrap: nowrap;
-    }
+    .swatches { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 500px; gap: 4px; flex-wrap: nowrap; }
 
     .sw {
       flex: 1 1 0; min-width: 0; aspect-ratio: 1/1; max-width: 42px;
@@ -51,7 +60,6 @@
     }
     .sw.active { border-color: #333; transform: scale(1.1); z-index: 2; }
 
-    /* BOTÃO + E PICKER DENTRO DA FILA */
     .sw.special { background: #fff; border: 2px dashed #aaa; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #666; }
     .sw.picker { background: linear-gradient(135deg, #FFD54F, #FFB300); border-style: solid; color: white; }
 
@@ -65,26 +73,26 @@
     .btn.primary { background:#2ecc71; color:#fff; box-shadow: 0 4px 0 #27ae60; }
     .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #e6a600; }
 
-    /* RODAPÉ MINIMALISTA AJUSTADO */
+    /* RODAPÉ MINIMALISTA */
     .pager {
       display:flex; gap:15px; align-items:center; justify-content:center;
       background: rgba(255,255,255,0.4); padding: 2px 15px;
-      border-radius: 20px; margin-top: 2px; height: 34px; /* Altura reduzida fixa */
+      border-radius: 20px; margin-top: 2px; height: 34px;
     }
     .navbtn { width:28px; height:28px; border:0; border-radius:50%; background:#fff; color: #ffb703; cursor:pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
-    /* POPUP DE CORES - 4 COLUNAS */
+    /* POPUP DE CORES - 4 COLUNAS E CENTRALIZADO */
     .palette-popup {
       position: fixed; background: #fff; border: 3px solid #ffd54f; border-radius: 16px;
-      padding: 10px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.25); z-index: 9999;
-      opacity: 0; transform: scale(0.9); pointer-events: none;
-      transition: opacity 0.2s, transform 0.2s;
+      padding: 12px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3); z-index: 9999;
+      opacity: 0; transform: scale(0.9) translateY(10px); pointer-events: none;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .palette-popup.active { opacity: 1; transform: scale(1); pointer-events: auto; }
-    .extra-color { width: 34px; height: 34px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(0,0,0,0.05); }
+    .palette-popup.active { opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
+    .extra-color { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(0,0,0,0.05); }
 
-    /* TELA DE CARREGAMENTO CORRIGIDA */
+    /* TELA DE CARREGAMENTO */
     #loadingOverlay { position: fixed; inset: 0; background: #fff9e6; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; }
     #loadingOverlay.hidden { display: none; }
     .spin-loader { width:40px; height:40px; border:4px solid #ffd54f; border-top-color:transparent; border-radius:50%; animation: girar 1s linear infinite; }
@@ -92,6 +100,8 @@
   </style>
 </head>
 <body>
+
+  <audio id="starSound" src="assets/sounds/estrela.mp3" preload="auto"></audio>
 
   <div id="loadingOverlay">
     <div class="spin-loader"></div>
@@ -143,24 +153,37 @@
   <script src="js/script.js"></script>
   
   <script>
-    // Lógica de UI - Corrigida sem erros de sintaxe
     document.addEventListener("DOMContentLoaded", () => {
       const customBtn = document.getElementById("customColorBtn");
       const pickerBtn = document.getElementById("pickerBtn");
       const colorPickerInput = document.getElementById("colorPickerInput");
+      const starSound = document.getElementById("starSound");
+      const starCountEl = document.getElementById("starCount");
       let popupRef = null;
+      let lastStarCount = 0;
 
-      const EXTRA_COLORS = ["#FF6F61","#F06292","#BA68C8","#9575CD","#4FC3F7","#4DD0E1","#81C784","#AED581","#FFD54F","#FFB74D","#A1887F","#BDBDBD","#EF5350","#FF8A65","#FFF176","#C0CA33","#26A69A","#29B6F6", "#444"];
+      const EXTRA_COLORS = ["#FF6F61","#F06292","#BA68C8","#9575CD","#4FC3F7","#4DD0E1","#81C784","#AED581","#FFD54F","#FFB74D","#A1887F","#BDBDBD","#EF5350","#FF8A65","#FFF176","#C0CA33","#26A69A","#29B6F6", "#444", "#000"];
+
+      // 1. GESTÃO DE SOM DA ESTRELA
+      const checkStarSound = () => {
+        const currentStars = parseInt(starCountEl.textContent) || 0;
+        if (currentStars > lastStarCount) {
+          starSound.currentTime = 0;
+          starSound.play().catch(e => console.log("Erro som:", e));
+        }
+        lastStarCount = currentStars;
+      };
+      // Monitora mudanças no texto das estrelas para tocar o som
+      const starObserver = new MutationObserver(checkStarSound);
+      starObserver.observe(starCountEl, { childList: true });
 
       function applyColor(color) {
-        if (window.setColor) {
-          window.setColor(color);
-        } else {
-          window.currentColor = color;
-        }
+        if (window.setColor) window.setColor(color);
+        else window.currentColor = color;
         window.dispatchEvent(new CustomEvent("colorchange", { detail: { color } }));
       }
 
+      // 2. LÓGICA DO POPUP (CENTRALIZADO E SEM CORTAR)
       function openPopup(btn) {
         if (popupRef) { closePopup(); return; }
         const pop = document.createElement("div");
@@ -179,11 +202,16 @@
           pop.appendChild(el);
         });
         document.body.appendChild(pop);
-        const br = btn.getBoundingClientRect();
-        // Centralização do popup com segurança nas bordas
-        let leftPos = br.left - (160 / 2); 
-        pop.style.left = Math.max(10, Math.min(window.innerWidth - 170, leftPos)) + "px";
-        pop.style.top = (br.top - 200) + "px"; // Sobe acima do botão
+
+        const popWidth = 200; // Aproximado para cálculo
+        const windowWidth = window.innerWidth;
+        // Centraliza horizontalmente na tela
+        let leftPos = (windowWidth / 2) - (popWidth / 2);
+        
+        // Posição vertical acima dos botões
+        const btnRect = btn.getBoundingClientRect();
+        pop.style.left = `${Math.max(10, Math.min(windowWidth - 210, leftPos))}px`;
+        pop.style.bottom = `${(window.innerHeight - btnRect.top) + 15}px`;
         
         setTimeout(() => pop.classList.add("active"), 10);
         const clickOut = (e) => { if(!pop.contains(e.target) && e.target !== btn) closePopup(); };
@@ -205,15 +233,69 @@
         pickerBtn.style.background = e.target.value; 
       };
 
-      // Gerencia o Loading - Tira quando o SVG entra no palco
-      const mount = document.getElementById("svgMount");
-      const obs = new MutationObserver(() => {
-        if (mount.querySelector("svg")) {
-          document.getElementById("loadingOverlay").classList.add("hidden");
-          obs.disconnect();
+      // 3. RESTAURAÇÃO DO ZOOM E PAN (GESTOS)
+      (function initZoomSystem() {
+        const mount = document.getElementById("svgMount");
+        const state = { scale: 1, tx: 0, ty: 0 };
+        let svg = null;
+
+        function update() {
+          if (svg) svg.style.transform = `translate(${state.tx}px, ${state.ty}px) scale(${state.scale})`;
         }
-      });
-      obs.observe(mount, { childList: true, subtree: true });
+
+        function attach(el) {
+          svg = el;
+          svg.style.transition = "transform 0.05s ease-out";
+          svg.style.transformOrigin = "center center";
+          
+          let pointers = [];
+          let startDist = 0;
+          let startScale = 1;
+
+          el.addEventListener('pointerdown', e => {
+            el.setPointerCapture(e.pointerId);
+            pointers.push(e);
+            if (pointers.length === 2) {
+              startDist = Math.hypot(pointers[0].clientX - pointers[1].clientX, pointers[0].clientY - pointers[1].clientY);
+              startScale = state.scale;
+            }
+          });
+
+          el.addEventListener('pointermove', e => {
+            const idx = pointers.findIndex(p => p.pointerId === e.pointerId);
+            if (idx >= 0) pointers[idx] = e;
+
+            if (pointers.length === 2) {
+              const dist = Math.hypot(pointers[0].clientX - pointers[1].clientX, pointers[0].clientY - pointers[1].clientY);
+              const factor = dist / startDist;
+              state.scale = Math.max(1, Math.min(startScale * factor, 4));
+              update();
+            } else if (pointers.length === 1 && state.scale > 1.1) {
+              state.tx += e.movementX;
+              state.ty += e.movementY;
+              update();
+            }
+          });
+
+          const end = (e) => {
+            pointers = pointers.filter(p => p.pointerId !== e.pointerId);
+            if (pointers.length === 0 && state.scale < 1.1) {
+              state.scale = 1; state.tx = 0; state.ty = 0; update();
+            }
+          };
+          el.addEventListener('pointerup', end);
+          el.addEventListener('pointercancel', end);
+        }
+
+        const obs = new MutationObserver(() => {
+          const s = mount.querySelector("svg");
+          if (s && s !== svg) {
+            attach(s);
+            document.getElementById("loadingOverlay").classList.add("hidden");
+          }
+        });
+        obs.observe(mount, { childList: true, subtree: true });
+      })();
     });
   </script>
 </body>
