@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="css/style.css" />
 
   <style>
-    /* RESET E ESTRUTURA BASE */
+    /* DESIGN VISUAL - PROGRESSO MANTIDO */
     *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
     :root{
       --bg1:#fffdf2; --bg2:#ffe6a7;
@@ -17,78 +17,63 @@
     html,body{height:100%; margin:0; font-family:system-ui,sans-serif; overflow: hidden;}
     body{ background:linear-gradient(var(--bg1),var(--bg2)); display: flex; flex-direction: column; }
 
-    /* TOPBAR */
+    /* TOPBAR E PROGRESSO */
     .topbar{ flex: 0 0 auto; display:flex; justify-content:flex-end; padding:10px 16px; z-index: 10; }
+    .progress-widget { display:flex; flex-direction:column; align-items:flex-end; gap:2px; }
+    .counter { font-weight:800; font-size: 14px; }
+    .progressbar { width: 180px; height:12px; background: #fff; border: 2px solid #111; border-radius: 10px; overflow: hidden; position: relative;}
+    .progress-fill { position:absolute; left:0; top:0; height: 100%; background:#9dd39a; width: 0%; transition: width 0.3s; }
 
     /* ÁREA DO DESENHO */
     .wrap { flex: 1; display:flex; flex-direction:column; width: 100%; max-width:1024px; margin:0 auto; padding:8px; overflow: hidden; }
     .stage { background:#fff; border-radius:var(--radius); box-shadow:var(--shadow); flex: 1; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 
-    /* CONTROLES TOTAIS */
+    /* CONTROLES - FILA ÚNICA FIXA */
     .controls {
       flex: 0 0 auto;
       background: #ffe082;
-      padding: 10px 8px 6px 8px; /* Reduzido para ganhar espaço */
+      padding: 10px 8px 6px 8px;
       display: flex; flex-direction: column; align-items: center; gap: 8px;
       z-index: 100;
       box-shadow: 0 -4px 15px rgba(0,0,0,0.08);
       border-radius: 24px 24px 0 0;
     }
 
-    /* PALETAS FIXAS (SEM SCROLL) */
     .swatches {
-      display: flex;
-      justify-content: space-between; /* Distribui igualmente */
-      align-items: center;
-      width: 100%;
-      max-width: 500px; /* Limite para não espalhar demais em tablets */
-      gap: 4px;
-      flex-wrap: nowrap; /* Garante fila única */
+      display: flex; justify-content: space-between; align-items: center;
+      width: 100%; max-width: 500px; gap: 4px; flex-wrap: nowrap;
     }
 
     .sw {
-      flex: 1 1 0; /* Cresce e encolhe igualmente */
-      min-width: 0; /* Permite encolher abaixo do conteúdo */
-      aspect-ratio: 1/1; /* Mantém sempre redondo */
-      max-width: 42px; /* Tamanho máximo ideal */
-      border-radius: 50%;
-      border: 3px solid #fff;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-      cursor: pointer;
-      padding: 0;
-      transition: transform 0.1s;
+      flex: 1 1 0; min-width: 0; aspect-ratio: 1/1; max-width: 42px;
+      border-radius: 50%; border: 3px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      cursor: pointer; padding: 0; transition: transform 0.1s;
     }
     .sw.active { border-color: #333; transform: scale(1.1); z-index: 2; }
 
-    /* Botões de Ação (Borracha, etc) */
-    .tools {
-      display:flex; gap:8px; justify-content:center; width: 100%;
-    }
+    /* BOTÃO + E PICKER DENTRO DA FILA */
+    .sw.special { background: #fff; border: 2px dashed #aaa; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #666; }
+    .sw.picker { background: linear-gradient(135deg, #FFD54F, #FFB300); border-style: solid; color: white; }
+
+    /* BOTÕES DE MENU */
+    .tools { display:flex; gap:8px; justify-content:center; width: 100%; }
     .btn {
-      flex: 0 1 auto;
-      background:#ffb703; color:#222; border:0; border-radius:12px;
+      flex: 0 1 auto; background:#ffb703; color:#222; border:0; border-radius:12px;
       padding:8px 12px; cursor:pointer; font-weight:700; font-size: 13px;
-      box-shadow: 0 4px 0 #e6a600; /* Efeito de profundidade para não parecer "cortado" */
+      box-shadow: 0 4px 0 #e6a600;
     }
     .btn.primary { background:#2ecc71; color:#fff; box-shadow: 0 4px 0 #27ae60; }
     .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #e6a600; }
 
-    /* RODAPÉ MINIMALISTA (SETAS) */
+    /* RODAPÉ MINIMALISTA AJUSTADO */
     .pager {
       display:flex; gap:15px; align-items:center; justify-content:center;
-      background: rgba(255,255,255,0.3); /* Balão mais discreto */
-      padding: 4px 15px;
-      border-radius: 20px;
-      margin-top: 5px;
+      background: rgba(255,255,255,0.4); padding: 2px 15px;
+      border-radius: 20px; margin-top: 2px; height: 34px; /* Altura reduzida fixa */
     }
-    .navbtn { 
-      width:32px; height:32px; border:0; border-radius:50%; 
-      background:#fff; color: #ffb703; cursor:pointer; 
-      font-size: 16px; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
+    .navbtn { width:28px; height:28px; border:0; border-radius:50%; background:#fff; color: #ffb703; cursor:pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
-    /* POPUP DE CORES (4 COLUNAS) */
+    /* POPUP DE CORES - 4 COLUNAS */
     .palette-popup {
       position: fixed; background: #fff; border: 3px solid #ffd54f; border-radius: 16px;
       padding: 10px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
@@ -99,28 +84,18 @@
     .palette-popup.active { opacity: 1; transform: scale(1); pointer-events: auto; }
     .extra-color { width: 34px; height: 34px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(0,0,0,0.05); }
 
-    /* PROGRESS BAR */
-    .progress-widget { display:flex; flex-direction:column; align-items:flex-end; gap:2px; }
-    .counter { font-weight:800; font-size: 14px; }
-    .progressbar { width: 180px; height:12px; background: #fff; border: 2px solid #111; border-radius: 10px; overflow: hidden; }
-    .progress-fill { height: 100%; background:#9dd39a; width: 0%; transition: width 0.3s; }
-
-    /* ESPECÍFICO PARA O BOTÃO "+" E "🎨" NA FILA */
-    .sw.special {
-      background: #fff; border: 2px dashed #aaa; 
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px; font-weight: bold; color: #666;
-    }
-    .sw.picker { background: linear-gradient(135deg, #FFD54F, #FFB300); border-style: solid; color: white; }
-
+    /* TELA DE CARREGAMENTO CORRIGIDA */
     #loadingOverlay { position: fixed; inset: 0; background: #fff9e6; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; }
     #loadingOverlay.hidden { display: none; }
+    .spin-loader { width:40px; height:40px; border:4px solid #ffd54f; border-top-color:transparent; border-radius:50%; animation: girar 1s linear infinite; }
+    @keyframes girar { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 
   <div id="loadingOverlay">
-    <div style="width:40px; height:40px; border:4px solid #ffd54f; border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite;"></div>
+    <div class="spin-loader"></div>
+    <div style="margin-top:10px; font-weight:bold; color:#555;">Carregando...</div>
   </div>
 
   <header class="topbar">
@@ -145,7 +120,6 @@
       <button class="sw" data-color="#42A5F5" style="background:#42A5F5"></button>
       <button class="sw" data-color="#8E24AA" style="background:#8E24AA"></button>
       <button class="sw" data-color="#8D6E63" style="background:#8D6E63"></button>
-      
       <button class="sw special picker" id="pickerBtn">🎨</button>
       <input type="color" id="colorPickerInput" style="display:none;" />
       <button class="sw special" id="customColorBtn">+</button>
@@ -160,7 +134,7 @@
 
     <div class="pager">
       <button id="prevBtn" class="navbtn">◀</button>
-      <span id="pageLabel" style="font-weight: bold; font-size: 13px;">1 / 80</span>
+      <span id="pageLabel" style="font-weight: bold; font-size: 13px;">1 / ?</span>
       <button id="nextBtn" class="navbtn">▶</button>
     </div>
   </section>
@@ -169,21 +143,21 @@
   <script src="js/script.js"></script>
   
   <script>
+    // Lógica de UI - Corrigida sem erros de sintaxe
     document.addEventListener("DOMContentLoaded", () => {
       const customBtn = document.getElementById("customColorBtn");
       const pickerBtn = document.getElementById("pickerBtn");
       const colorPickerInput = document.getElementById("colorPickerInput");
       let popupRef = null;
 
-      const EXTRA_COLORS = [
-        "#FF6F61","#F06292","#BA68C8","#9575CD","#4FC3F7","#4DD0E1",
-        "#81C784","#AED581","#FFD54F","#FFB74D","#A1887F","#BDBDBD",
-        "#EF5350","#FF8A65","#FFF176","#C0CA33","#26A69A","#29B6F6", "#444"
-      ];
+      const EXTRA_COLORS = ["#FF6F61","#F06292","#BA68C8","#9575CD","#4FC3F7","#4DD0E1","#81C784","#AED581","#FFD54F","#FFB74D","#A1887F","#BDBDBD","#EF5350","#FF8A65","#FFF176","#C0CA33","#26A69A","#29B6F6", "#444"];
 
       function applyColor(color) {
-        if (window.setColor) window.setColor(color);
-        else window.currentColor = color;
+        if (window.setColor) {
+          window.setColor(color);
+        } else {
+          window.currentColor = color;
+        }
         window.dispatchEvent(new CustomEvent("colorchange", { detail: { color } }));
       }
 
@@ -195,13 +169,22 @@
           const el = document.createElement("div");
           el.className = "extra-color";
           el.style.background = c;
-          el.onclick = () => { applyColor(c); customBtn.style.background = c; closePopup(); };
+          el.onclick = (e) => { 
+            e.stopPropagation();
+            applyColor(c); 
+            customBtn.style.background = c; 
+            customBtn.style.color = "transparent";
+            closePopup(); 
+          };
           pop.appendChild(el);
         });
         document.body.appendChild(pop);
         const br = btn.getBoundingClientRect();
-        pop.style.left = `${Math.min(window.innerWidth - 180, Math.max(10, br.left - 70))}px`;
-        pop.style.top = `${br.top - pop.offsetHeight - 15}px`;
+        // Centralização do popup com segurança nas bordas
+        let leftPos = br.left - (160 / 2); 
+        pop.style.left = Math.max(10, Math.min(window.innerWidth - 170, leftPos)) + "px";
+        pop.style.top = (br.top - 200) + "px"; // Sobe acima do botão
+        
         setTimeout(() => pop.classList.add("active"), 10);
         const clickOut = (e) => { if(!pop.contains(e.target) && e.target !== btn) closePopup(); };
         document.addEventListener("click", clickOut);
@@ -217,18 +200,21 @@
 
       customBtn.onclick = (e) => { e.stopPropagation(); openPopup(customBtn); };
       pickerBtn.onclick = () => colorPickerInput.click();
-      colorPickerInput.oninput = (e) => { applyColor(e.target.value); pickerBtn.style.background = e.target.value; };
+      colorPickerInput.oninput = (e) => { 
+        applyColor(e.target.value); 
+        pickerBtn.style.background = e.target.value; 
+      };
 
+      // Gerencia o Loading - Tira quando o SVG entra no palco
+      const mount = document.getElementById("svgMount");
       const obs = new MutationObserver(() => {
-        if (document.querySelector("#svgMount svg")) {
+        if (mount.querySelector("svg")) {
           document.getElementById("loadingOverlay").classList.add("hidden");
           obs.disconnect();
         }
       });
-      obs.observe(document.getElementById("svgMount"), { childList: true, subtree: true });
+      obs.observe(mount, { childList: true, subtree: true });
     });
-
-    @keyframes spin { to { transform: rotate(360deg); } }
   </script>
 </body>
 </html>
