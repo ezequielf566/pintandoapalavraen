@@ -9,10 +9,9 @@
 
   <style>
     /* =========================================
-       DESIGN VISUAL E LAYOUT (Trazido do CSS)
+       DESIGN VISUAL E LAYOUT (Ajustado)
        ========================================= */
     
-    /* Reset e Variáveis */
     *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
     :root{
       --bg1:#fffdf2; --bg2:#ffe6a7;
@@ -38,7 +37,7 @@
     
     .stage {
       background:#fff; border-radius:var(--radius); box-shadow:var(--shadow);
-      padding: 0; /* O CSS externo ajusta o padding interno se precisar */
+      padding: 0;
       flex: 1;
       position: relative;
       display: flex; align-items: center; justify-content: center;
@@ -49,31 +48,32 @@
     .controls {
       flex: 0 0 auto;
       background: #ffe082;
-      padding: 10px;
-      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      padding: 12px 10px; /* Ajustei o padding vertical para dar mais ar */
+      display: flex; flex-direction: column; align-items: center; gap: 12px; /* Aumentei o gap entre blocos */
       z-index: 100;
       box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
       border-radius: 20px 20px 0 0;
     }
 
-    /* === PALETAS E BOTÕES (O Layout que não quebra) === */
+    /* === PALETAS E BOTÕES (Ajuste para caber na tela) === */
     .swatches {
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 8px;
-      flex-wrap: nowrap; /* Garante que fiquem na mesma linha */
+      gap: 6px; /* Reduzi levemente o gap para caber mais */
+      flex-wrap: nowrap;
       width: 100%;
-      overflow-x: auto; /* Permite rolagem lateral em telas minúsculas se necessário */
+      overflow-x: auto;
       padding-bottom: 4px;
+      /* Garante que o container não "estoure" a largura */
+      max-width: 100%;
+      scrollbar-width: none; /* Firefox */
     }
-    
-    /* Esconde barra de rolagem dos swatches */
-    .swatches::-webkit-scrollbar { display: none; }
+    .swatches::-webkit-scrollbar { display: none; /* Chrome/Safari */ }
 
     .sw {
-      flex: 0 0 auto; /* Não encolhe demais */
-      width: 48px; height: 48px;
+      flex: 0 0 auto;
+      width: 44px; height: 44px; /* Reduzi levemente o tamanho padrão */
       border-radius: 50%;
       border: 3px solid #fff;
       box-shadow: 0 2px 5px rgba(0,0,0,0.15);
@@ -87,7 +87,7 @@
     /* Botões Especiais (+ e Picker) */
     .sw.custom-picker, .sw.custom {
       border-radius: 12px; 
-      width: 42px; height: 42px;
+      width: 40px; height: 40px; /* Ajuste proporcional */
       display: flex; align-items: center; justify-content: center;
       font-weight: bold; font-size: 1.2rem;
       color: #555; background: #fff;
@@ -97,8 +97,11 @@
     /* Barra de Ferramentas (Borracha, Undo, etc) */
     .tools {
       display:flex; gap:10px; flex-wrap:nowrap; justify-content:center;
-      overflow-x: auto; width: 100%;
+      overflow-x: auto; width: 100%; max-width: 100%;
+      scrollbar-width: none;
     }
+    .tools::-webkit-scrollbar { display: none; }
+
     .btn {
       flex: 0 0 auto;
       background:#ffb703; color:#222; border:0; border-radius:12px;
@@ -108,8 +111,13 @@
     .btn.primary { background:#2ecc71; color:#fff; }
     .btn:active, .btn.active { transform: translateY(2px); box-shadow: none; outline: 2px solid #333; }
 
-    /* Navegação de Páginas */
-    .pager { display:flex; gap:12px; align-items:center; justify-content:center; margin-top: 5px; }
+    /* Navegação de Páginas (Ajuste do "balão" colado) */
+    .pager {
+      display:flex; gap:12px; align-items:center; justify-content:center;
+      /* Aumentei a margem superior para desgrudar do menu de ferramentas */
+      margin-top: 8px;
+      padding-bottom: 5px; /* Um pouco de respiro embaixo */
+    }
     .navbtn { width:42px; height:36px; border:0; border-radius:10px; background:#ffd166; cursor:pointer; font-weight: bold; }
 
     /* === PROGRESS WIDGET === */
@@ -130,17 +138,22 @@
       background:#9dd39a; transition: width 0.4s ease-out;
     }
 
-    /* === POPUP DE CORES (Lógica de CSS para centralizar) === */
+    /* === POPUP DE CORES (Ajuste de Grid e Posição) === */
     .palette-popup {
       position: fixed; background: #fff; border: 3px solid #ffd54f; border-radius: 16px;
-      padding: 12px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;
+      padding: 10px;
+      /* Mudei para 4 colunas para ficar mais compacto e centralizado */
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
       z-index: 9999;
       opacity: 0; transform: scale(0.9); pointer-events: none;
       transition: opacity 0.2s, transform 0.2s;
+      /* Tamanho máximo para não estourar a tela */
+      max-width: 90vw;
     }
     .palette-popup.active { opacity: 1; transform: scale(1); pointer-events: auto; }
-    .extra-color { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(0,0,0,0.1); }
+    /* Cores do popup um pouco menores para caberem no grid de 4 */
+    .extra-color { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(0,0,0,0.1); }
 
     /* === TELA DE CARREGAMENTO === */
     #loadingOverlay {
@@ -155,11 +168,13 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Ajustes Mobile */
-    @media (max-width: 480px) {
+    /* Ajustes Mobile (Telas muito pequenas) */
+    @media (max-width: 380px) {
       .sw { width: 38px; height: 38px; }
+      .sw.custom-picker, .sw.custom { width: 36px; height: 36px; }
       .btn { padding: 8px 10px; font-size: 12px; }
-      .controls { padding: 8px; }
+      .controls { padding: 10px 8px; gap: 10px; }
+      .pager { margin-top: 6px; }
     }
   </style>
 </head>
@@ -224,8 +239,9 @@
 
   <script src="js/pintura.js"></script>
   <script src="js/script.js"></script>
+  
   <script>
-    // === 1. LÓGICA DE UI E POPUP INTELIGENTE ===
+    // === 1. LÓGICA DE UI E POPUP INTELIGENTE (AJUSTADA) ===
     document.addEventListener("DOMContentLoaded", () => {
       const customBtn = document.getElementById("customColorBtn");
       const pickerBtn = document.getElementById("pickerBtn");
@@ -238,18 +254,15 @@
         "#EF5350","#FF8A65","#FFF176","#C0CA33","#26A69A","#29B6F6"
       ];
 
-      // Função segura para aplicar cor (compatível com seus scripts antigos)
       function applyColorSafely(color) {
         if (typeof window.setColor === "function") {
           window.setColor(color);
         } else {
-          window.currentColor = color; // Fallback
+          window.currentColor = color;
         }
-        // Dispara evento para o pintura.js pegar se precisar
         window.dispatchEvent(new CustomEvent("colorchange", { detail: { color } }));
       }
 
-      // Abre o popup calculando posição para não sair da tela
       function openPopup(btn) {
         if (popupRef) { closePopup(); return; }
         
@@ -263,9 +276,8 @@
           el.onclick = (e) => {
             e.stopPropagation();
             applyColorSafely(c);
-            // Atualiza visual do botão +
             customBtn.style.background = c;
-            customBtn.style.color = "transparent"; // esconde o +
+            customBtn.style.color = "transparent";
             closePopup();
           };
           pop.appendChild(el);
@@ -273,29 +285,37 @@
 
         document.body.appendChild(pop);
         
-        // CÁLCULO DE POSIÇÃO INTELIGENTE
+        // CÁLCULO DE POSIÇÃO REFINADO PARA CENTRALIZAR
         const btnRect = btn.getBoundingClientRect();
-        const popRect = pop.getBoundingClientRect(); // Tamanho natural
+        const popRect = pop.getBoundingClientRect();
         const margin = 10;
+        const windowWidth = window.innerWidth;
         
-        // Centraliza horizontalmente em relação ao botão
-        let left = btnRect.left + (btnRect.width / 2) - (110); // aprox metade da largura do pop
-        
-        // Garante que não saia da esquerda nem da direita
-        if (left < margin) left = margin;
-        if (left + 220 > window.innerWidth) left = window.innerWidth - 230;
+        // Tenta centralizar o popup em relação à tela horizontalmente
+        let left = (windowWidth / 2) - (popRect.width / 2);
 
-        // Tenta colocar em cima, se não der, põe embaixo
+        // Se o botão estiver muito longe do centro, alinha mais próximo dele
+        const btnCenter = btnRect.left + (btnRect.width / 2);
+        if (Math.abs(btnCenter - windowWidth/2) > windowWidth/4) {
+           // Se o botão está muito na ponta, alinha o popup com o centro do botão
+           left = btnCenter - (popRect.width / 2);
+        }
+
+        // Garante que não saia da tela, com margem de segurança
+        if (left < margin) left = margin;
+        if (left + popRect.width > windowWidth - margin) {
+          left = windowWidth - popRect.width - margin;
+        }
+
+        // Posição vertical (acima do botão)
         let top = btnRect.top - popRect.height - margin;
-        if (top < margin) top = btnRect.bottom + margin;
+        if (top < margin) top = btnRect.bottom + margin; // fallback para baixo
 
         pop.style.left = `${left}px`;
-        pop.style.top = `${top - 150}px`; // Ajuste fino manual para cima dos botões
+        pop.style.top = `${top - 20}px`; // Um pouco mais alto para dar destaque
 
-        // Animação de entrada
         requestAnimationFrame(() => pop.classList.add("active"));
         
-        // Fecha ao clicar fora
         const closeHandler = (e) => {
           if (!pop.contains(e.target) && e.target !== btn) closePopup();
         };
@@ -312,7 +332,6 @@
 
       customBtn.onclick = (e) => { e.stopPropagation(); openPopup(customBtn); };
       
-      // Picker Nativo
       pickerBtn.onclick = () => colorPickerInput.click();
       colorPickerInput.oninput = (e) => {
         applyColorSafely(e.target.value);
@@ -325,37 +344,28 @@
         if (svg) {
           document.getElementById("loadingOverlay").classList.add("hidden");
           observer.disconnect();
-          // Iniciar script de zoom se necessário aqui
         }
       });
       observer.observe(document.getElementById("svgMount"), { childList: true, subtree: true });
     });
 
-    // === 3. SCRIPT DE ZOOM E GESTOS (Restaurado) ===
+    // === 3. SCRIPT DE ZOOM E GESTOS (Mantido Intacto) ===
     (function() {
       const mount = document.getElementById("svgMount");
       if (!mount) return;
-
       const state = { scale: 1, tx: 0, ty: 0 };
       let svg = null;
-
       function updateTransform() {
         if (!svg) return;
         svg.style.transform = `translate(${state.tx}px, ${state.ty}px) scale(${state.scale})`;
       }
-
       function attachGestures(el) {
         svg = el;
         el.style.transformOrigin = "center center";
-        // Reset inicial
-        state.scale = 1; state.tx = 0; state.ty = 0;
-        updateTransform();
-
-        // Lógica simples de Pinch/Pan (Simplificada para confiabilidade)
+        state.scale = 1; state.tx = 0; state.ty = 0; updateTransform();
         let pointers = [];
         let startDist = 0;
         let startScale = 1;
-
         el.addEventListener('pointerdown', e => {
           el.setPointerCapture(e.pointerId);
           pointers.push(e);
@@ -364,30 +374,23 @@
              startScale = state.scale;
           }
         });
-
         el.addEventListener('pointermove', e => {
-          // Atualiza posição do pointer
           const index = pointers.findIndex(p => p.pointerId === e.pointerId);
           if (index >= 0) pointers[index] = e;
-
           if (pointers.length === 2) {
-            // Zoom (Pinch)
             const dist = Math.hypot(pointers[0].clientX - pointers[1].clientX, pointers[0].clientY - pointers[1].clientY);
             if (startDist > 0) {
               const diff = dist - startDist;
-              // Ajuste de sensibilidade
               const newScale = startScale + (diff * 0.005);
               state.scale = Math.max(1, Math.min(newScale, 4));
               updateTransform();
             }
           } else if (pointers.length === 1 && state.scale > 1) {
-             // Pan (Só se estiver com zoom)
              state.tx += e.movementX;
              state.ty += e.movementY;
              updateTransform();
           }
         });
-
         const endGesture = (e) => {
           pointers = pointers.filter(p => p.pointerId !== e.pointerId);
           if (pointers.length === 0 && state.scale < 1.05) {
@@ -397,8 +400,6 @@
         el.addEventListener('pointerup', endGesture);
         el.addEventListener('pointercancel', endGesture);
       }
-
-      // Observa novos SVGs carregados
       new MutationObserver(() => {
         const s = mount.querySelector("svg");
         if (s && s !== svg) attachGestures(s);
