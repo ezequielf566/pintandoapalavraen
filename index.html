@@ -34,7 +34,6 @@
       width: 0%; transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
       border-right: 1px solid rgba(0,0,0,0.1);
     }
-    /* Brilho na barra de progresso */
     .progress-fill::after {
       content: ''; position: absolute; top: 0; left: 0; right: 0; height: 40%;
       background: rgba(255,255,255,0.3); border-radius: 10px; margin: 1px;
@@ -50,16 +49,13 @@
       display: flex; flex-direction: column; align-items: center; gap: 8px;
       z-index: 100; box-shadow: 0 -4px 15px rgba(0,0,0,0.08); border-radius: 24px 24px 0 0;
     }
-
     .swatches { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 500px; gap: 4px; flex-wrap: nowrap; }
-
     .sw {
       flex: 1 1 0; min-width: 0; aspect-ratio: 1/1; max-width: 42px;
       border-radius: 50%; border: 3px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.15);
       cursor: pointer; padding: 0; transition: transform 0.1s;
     }
     .sw.active { border-color: #333; transform: scale(1.1); z-index: 2; }
-
     .sw.special { background: #fff; border: 2px dashed #aaa; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #666; }
     .sw.picker { background: linear-gradient(135deg, #FFD54F, #FFB300); border-style: solid; color: white; }
 
@@ -81,7 +77,7 @@
     }
     .navbtn { width:28px; height:28px; border:0; border-radius:50%; background:#fff; color: #ffb703; cursor:pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
-    /* POPUP DE CORES - 4 COLUNAS E CENTRALIZADO */
+    /* POPUP CENTRALIZADO */
     .palette-popup {
       position: fixed; background: #fff; border: 3px solid #ffd54f; border-radius: 16px;
       padding: 12px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
@@ -92,7 +88,7 @@
     .palette-popup.active { opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
     .extra-color { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(0,0,0,0.05); }
 
-    /* TELA DE CARREGAMENTO */
+    /* CARREGAMENTO */
     #loadingOverlay { position: fixed; inset: 0; background: #fff9e6; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; }
     #loadingOverlay.hidden { display: none; }
     .spin-loader { width:40px; height:40px; border:4px solid #ffd54f; border-top-color:transparent; border-radius:50%; animation: girar 1s linear infinite; }
@@ -164,7 +160,6 @@
 
       const EXTRA_COLORS = ["#FF6F61","#F06292","#BA68C8","#9575CD","#4FC3F7","#4DD0E1","#81C784","#AED581","#FFD54F","#FFB74D","#A1887F","#BDBDBD","#EF5350","#FF8A65","#FFF176","#C0CA33","#26A69A","#29B6F6", "#444", "#000"];
 
-      // 1. GESTÃO DE SOM DA ESTRELA
       const checkStarSound = () => {
         const currentStars = parseInt(starCountEl.textContent) || 0;
         if (currentStars > lastStarCount) {
@@ -173,7 +168,6 @@
         }
         lastStarCount = currentStars;
       };
-      // Monitora mudanças no texto das estrelas para tocar o som
       const starObserver = new MutationObserver(checkStarSound);
       starObserver.observe(starCountEl, { childList: true });
 
@@ -183,7 +177,6 @@
         window.dispatchEvent(new CustomEvent("colorchange", { detail: { color } }));
       }
 
-      // 2. LÓGICA DO POPUP (CENTRALIZADO E SEM CORTAR)
       function openPopup(btn) {
         if (popupRef) { closePopup(); return; }
         const pop = document.createElement("div");
@@ -202,17 +195,11 @@
           pop.appendChild(el);
         });
         document.body.appendChild(pop);
-
-        const popWidth = 200; // Aproximado para cálculo
         const windowWidth = window.innerWidth;
-        // Centraliza horizontalmente na tela
-        let leftPos = (windowWidth / 2) - (popWidth / 2);
-        
-        // Posição vertical acima dos botões
+        let leftPos = (windowWidth / 2) - 100;
         const btnRect = btn.getBoundingClientRect();
         pop.style.left = `${Math.max(10, Math.min(windowWidth - 210, leftPos))}px`;
         pop.style.bottom = `${(window.innerHeight - btnRect.top) + 15}px`;
-        
         setTimeout(() => pop.classList.add("active"), 10);
         const clickOut = (e) => { if(!pop.contains(e.target) && e.target !== btn) closePopup(); };
         document.addEventListener("click", clickOut);
@@ -233,25 +220,19 @@
         pickerBtn.style.background = e.target.value; 
       };
 
-      // 3. RESTAURAÇÃO DO ZOOM E PAN (GESTOS)
       (function initZoomSystem() {
         const mount = document.getElementById("svgMount");
         const state = { scale: 1, tx: 0, ty: 0 };
         let svg = null;
-
         function update() {
           if (svg) svg.style.transform = `translate(${state.tx}px, ${state.ty}px) scale(${state.scale})`;
         }
-
         function attach(el) {
           svg = el;
           svg.style.transition = "transform 0.05s ease-out";
           svg.style.transformOrigin = "center center";
-          
           let pointers = [];
-          let startDist = 0;
-          let startScale = 1;
-
+          let startDist = 0; let startScale = 1;
           el.addEventListener('pointerdown', e => {
             el.setPointerCapture(e.pointerId);
             pointers.push(e);
@@ -260,41 +241,55 @@
               startScale = state.scale;
             }
           });
-
           el.addEventListener('pointermove', e => {
             const idx = pointers.findIndex(p => p.pointerId === e.pointerId);
             if (idx >= 0) pointers[idx] = e;
-
             if (pointers.length === 2) {
               const dist = Math.hypot(pointers[0].clientX - pointers[1].clientX, pointers[0].clientY - pointers[1].clientY);
               const factor = dist / startDist;
               state.scale = Math.max(1, Math.min(startScale * factor, 4));
               update();
             } else if (pointers.length === 1 && state.scale > 1.1) {
-              state.tx += e.movementX;
-              state.ty += e.movementY;
-              update();
+              state.tx += e.movementX; state.ty += e.movementY; update();
             }
           });
-
           const end = (e) => {
             pointers = pointers.filter(p => p.pointerId !== e.pointerId);
             if (pointers.length === 0 && state.scale < 1.1) {
               state.scale = 1; state.tx = 0; state.ty = 0; update();
             }
           };
-          el.addEventListener('pointerup', end);
-          el.addEventListener('pointercancel', end);
+          el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
         }
-
         const obs = new MutationObserver(() => {
           const s = mount.querySelector("svg");
-          if (s && s !== svg) {
-            attach(s);
-            document.getElementById("loadingOverlay").classList.add("hidden");
-          }
+          if (s && s !== svg) { attach(s); document.getElementById("loadingOverlay").classList.add("hidden"); }
         });
         obs.observe(mount, { childList: true, subtree: true });
+      })();
+
+      // --- 🔒 INTERCEPTADOR PARA O APP (FLUTTER) ---
+      (function initAppInterceptor() {
+        const originalCreateElement = document.createElement;
+        document.createElement = function(tagName) {
+          const el = originalCreateElement.call(document, tagName);
+          if (tagName === "a") {
+            const originalClick = el.click;
+            el.click = function() {
+              if (window.ImageChannel && typeof window.ImageChannel.postMessage === "function") {
+                if (el.href && el.href.startsWith("data:image/png;base64,")) {
+                  const base64 = el.href.replace("data:image/png;base64,", "");
+                  try {
+                    window.ImageChannel.postMessage(base64);
+                    return; // Interceptado com sucesso
+                  } catch (err) { console.error(err); }
+                }
+              }
+              return originalClick.call(el);
+            };
+          }
+          return el;
+        };
       })();
     });
   </script>
