@@ -1,180 +1,409 @@
 <!doctype html>
-<html lang="pt-BR">  
-<head>  
-  <meta charset="utf-8" />  
-  <meta name="viewport" content="width=device-width, initial-scale=1" />  
-  <title>Pintando a Palavra — Colorir</title>  
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Pintando a Palavra — Colorir</title>
   
-  <link rel="stylesheet" href="css/style.css" />  
+  <link rel="stylesheet" href="css/style.css" />
 
-  <style>  
-    /* === DESIGN DO LAYOUT (Idêntico ao original) === */
-    *{box-sizing:border-box}
+  <style>
+    /* =========================================
+       DESIGN VISUAL E LAYOUT (Trazido do CSS)
+       ========================================= */
+    
+    /* Reset e Variáveis */
+    *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
     :root{
       --bg1:#fffdf2; --bg2:#ffe6a7;
       --panel:#fff; --ink:#1f2937; --shadow:0 12px 28px rgba(0,0,0,.12);
       --radius:18px; --accent:#f59e0b;
     }
-    html,body{height:100%; margin:0; font-family:system-ui,-apple-system,sans-serif; overflow-x: hidden;}
-    body{ background:linear-gradient(var(--bg1),var(--bg2)); color:var(--ink); }
+    html,body{height:100%; margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif; overflow: hidden;}
+    body{
+      background:linear-gradient(var(--bg1),var(--bg2));
+      color:var(--ink);
+      display: flex; flex-direction: column;
+    }
 
-    .topbar{display:flex;justify-content:flex-end;padding:12px 16px}
-    .wrap{max-width:1024px;margin:0 auto;padding:12px;display:flex;flex-direction:column;gap:14px}
+    /* Topbar */
+    .topbar{ flex: 0 0 auto; display:flex; justify-content:flex-end; padding:12px 16px; z-index: 10; }
+
+    /* Área Principal */
+    .wrap {
+      flex: 1; display:flex; flex-direction:column; gap:14px;
+      width: 100%; max-width:1024px; margin:0 auto; padding:12px;
+      overflow: hidden; position: relative;
+    }
     
     .stage {
-      background:#fff; border-radius:var(--radius); box-shadow:var(--shadow); 
-      padding:12px; padding-bottom: 120px; text-align: center; overflow: hidden;
+      background:#fff; border-radius:var(--radius); box-shadow:var(--shadow);
+      padding: 0; /* O CSS externo ajusta o padding interno se precisar */
+      flex: 1;
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
     }
 
+    /* Controles (Rodapé) */
     .controls {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: #ffe082; padding: 10px;
-      display: flex; flex-direction: column; align-items: center;
-      z-index: 1000; box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+      flex: 0 0 auto;
+      background: #ffe082;
+      padding: 10px;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      z-index: 100;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+      border-radius: 20px 20px 0 0;
     }
 
-    /* === PALETA === */
-    .swatches { display: flex; justify-content: center; gap: 6px; flex-wrap: nowrap; }
+    /* === PALETAS E BOTÕES (O Layout que não quebra) === */
+    .swatches {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: nowrap; /* Garante que fiquem na mesma linha */
+      width: 100%;
+      overflow-x: auto; /* Permite rolagem lateral em telas minúsculas se necessário */
+      padding-bottom: 4px;
+    }
+    
+    /* Esconde barra de rolagem dos swatches */
+    .swatches::-webkit-scrollbar { display: none; }
+
     .sw {
-      flex: 1 1 auto; max-width: 55px; aspect-ratio: 1/1;
-      border-radius: 50%; border: 3px solid white; cursor: pointer; padding: 0;
+      flex: 0 0 auto; /* Não encolhe demais */
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+      cursor: pointer;
+      padding: 0;
+      transition: transform 0.1s, border-color 0.1s;
     }
+    .sw:active { transform: scale(0.9); }
+    .sw.active { border-color: #333; transform: scale(1.1); z-index: 2; }
+
+    /* Botões Especiais (+ e Picker) */
     .sw.custom-picker, .sw.custom {
-      border-radius: 10px; width: 36px; height: 36px; border: 2px solid #fff;
-      display: flex; align-items: center; justify-content: center; font-weight: bold;
+      border-radius: 12px; 
+      width: 42px; height: 42px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: bold; font-size: 1.2rem;
+      color: #555; background: #fff;
+    }
+    .sw.custom-picker { background: linear-gradient(135deg, #FFD54F, #FFB300); color: white; border: 2px solid #fff; }
+
+    /* Barra de Ferramentas (Borracha, Undo, etc) */
+    .tools {
+      display:flex; gap:10px; flex-wrap:nowrap; justify-content:center;
+      overflow-x: auto; width: 100%;
+    }
+    .btn {
+      flex: 0 0 auto;
+      background:#ffb703; color:#222; border:0; border-radius:12px;
+      padding:10px 14px; cursor:pointer; font-weight:700; 
+      box-shadow: var(--shadow); font-size: 14px;
+    }
+    .btn.primary { background:#2ecc71; color:#fff; }
+    .btn:active, .btn.active { transform: translateY(2px); box-shadow: none; outline: 2px solid #333; }
+
+    /* Navegação de Páginas */
+    .pager { display:flex; gap:12px; align-items:center; justify-content:center; margin-top: 5px; }
+    .navbtn { width:42px; height:36px; border:0; border-radius:10px; background:#ffd166; cursor:pointer; font-weight: bold; }
+
+    /* === PROGRESS WIDGET === */
+    .progress-widget { display:flex; flex-direction:column; align-items:flex-end; gap:4px; max-width: 100%; }
+    .counter { font-weight:800; color:#111; font-size: clamp(14px, 4vw, 20px); display: flex; align-items: center; gap: 5px; }
+    .star-icon { color: #f4b400; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+    
+    .progressbar {
+      position:relative; width: clamp(200px, 50vw, 400px); height:32px;
+      background: transparent; border: 3px solid #111; border-radius: 99px;
+      padding: 3px;
+    }
+    .progressbar .track {
+      width: 100%; height: 100%; background: #fff; border-radius: 99px; overflow: hidden; position: relative;
+    }
+    .progress-fill {
+      position:absolute; left:0; top:0; bottom:0; width:0%;
+      background:#9dd39a; transition: width 0.4s ease-out;
     }
 
-    .tools{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:10px; margin-bottom: 10px;}
-    .btn{
-      background:#ffb703; color:#222; border:0; border-radius:12px; 
-      padding:10px 14px; cursor:pointer; font-weight:700; box-shadow: var(--shadow);
-    }
-    .btn.primary{background:#2ecc71; color:#fff}
-    .pager{display:flex;gap:12px;align-items:center;justify-content:center}
-    .navbtn{min-width:42px; min-height:36px; border:0; border-radius:10px; background:#ffd166; cursor:pointer}
-
-    /* === PROGRESS & LOADING === */
-    #loadingOverlay { position: fixed; inset: 0; background: #fff9e6; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
-    #loadingOverlay.hidden { opacity: 0; visibility: hidden; transition: opacity .5s; }
-    .spinner { width: 60px; height: 60px; border: 6px solid #ffd54f; border-top: 6px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px;}
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-text { font-size: 1.1rem; color: #444; }
-
-    .progress-widget{display:flex;flex-direction:column; align-items:flex-end; gap:4px;}
-    .progressbar{ position:relative; width:min(560px, 85vw); height: 38px; border:4px solid #111; border-radius:9999px; background:#fff; overflow:hidden;}
-    .progress-fill{ position:absolute; left:0; top:0; bottom:0; width:0%; background:#9dd39a; }
-
+    /* === POPUP DE CORES (Lógica de CSS para centralizar) === */
     .palette-popup {
-      position: fixed; background: #fff; border: 2px solid #ffd54f; border-radius: 14px;
-      padding: 10px; display: grid; grid-template-columns: repeat(6, 28px); gap: 6px;
-      box-shadow: 0 6px 16px rgba(0,0,0,.18); z-index: 2000; opacity: 0; pointer-events: none;
-      transition: opacity .2s;
+      position: fixed; background: #fff; border: 3px solid #ffd54f; border-radius: 16px;
+      padding: 12px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
+      z-index: 9999;
+      opacity: 0; transform: scale(0.9); pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
     }
-    .palette-popup.active { opacity: 1; pointer-events: auto; }
-    .extra-color { width: 28px; height: 28px; border-radius: 8px; cursor: pointer; border: 1px solid #ddd; }
+    .palette-popup.active { opacity: 1; transform: scale(1); pointer-events: auto; }
+    .extra-color { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(0,0,0,0.1); }
 
-    @media (max-width: 420px) { .sw { width: 28px !important; height: 28px !important; } }
-  </style>  
-</head>  
+    /* === TELA DE CARREGAMENTO === */
+    #loadingOverlay {
+      position: fixed; inset: 0; background: #fff9e6;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 10000; transition: opacity 0.5s;
+    }
+    #loadingOverlay.hidden { opacity: 0; pointer-events: none; }
+    .spinner {
+      width: 50px; height: 50px; border: 5px solid #ffd54f; border-top-color: transparent;
+      border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-<body>  
-  <div id="loadingOverlay">  
-    <div class="spinner"></div>  
-    <div class="loading-text">🎨 Carregando artes...</div>  
-  </div>  
+    /* Ajustes Mobile */
+    @media (max-width: 480px) {
+      .sw { width: 38px; height: 38px; }
+      .btn { padding: 8px 10px; font-size: 12px; }
+      .controls { padding: 8px; }
+    }
+  </style>
+</head>
 
-  <header class="topbar">  
-    <div id="progressWidget" class="progress-widget">  
-      <div class="counter" style="font-weight: 800; font-size: 20px;">  
-        <span id="starCount">00</span>/<span id="totalPages">00</span> ★ 
-        <span id="progressPercent">0%</span>  
-      </div>  
-      <div class="progressbar"><div id="progressFill" class="progress-fill"></div></div>  
-    </div>  
-  </header>  
+<body>
+  
+  <div id="loadingOverlay">
+    <div class="spinner"></div>
+    <div style="font-weight: bold; color: #555;">Carregando...</div>
+  </div>
 
-  <main class="wrap">  
-    <section class="stage">  
-      <div id="svgMount" class="svgMount"></div>  
-    </section>  
+  <header class="topbar">
+    <div id="progressWidget" class="progress-widget">
+      <div class="counter">
+        <span id="starCount">0</span>/<span id="totalPages">?</span> 
+        <span class="star-icon">★</span> 
+        <span id="progressPercent">0%</span>
+      </div>
+      <div class="progressbar">
+        <div class="track">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+      </div>
+      <audio id="starSound" src="assets/sounds/estrela.mp3" preload="auto"></audio>
+    </div>
+  </header>
 
-    <section class="controls">  
-      <div class="swatches" id="swatches">  
-        <button class="sw" data-color="#E53935" style="background:#E53935"></button>  
-        <button class="sw" data-color="#FB8C00" style="background:#FB8C00"></button>  
-        <button class="sw" data-color="#FDD835" style="background:#FDD835"></button>  
-        <button class="sw" data-color="#7CB342" style="background:#7CB342"></button>  
-        <button class="sw" data-color="#42A5F5" style="background:#42A5F5"></button>  
-        <button class="sw" data-color="#8E24AA" style="background:#8E24AA"></button>  
-        <button class="sw" data-color="#E0C2A2" style="background:#E0C2A2"></button>  
-        <button class="sw" data-color="#8D6E63" style="background:#8D6E63"></button>  
-        <button class="sw custom-picker" id="pickerBtn" style="background: linear-gradient(135deg, #FFD54F, #FFB300);">🎨</button>
-        <input type="color" id="colorPickerInput" style="display:none;" />
-        <button class="sw custom" id="customColorBtn" style="background: #eee;">+</button>
-      </div>  
+  <main class="wrap">
+    <section class="stage">
+      <div id="svgMount" class="svgMount"></div>
+    </section>
+  </main>
 
-      <div class="tools">  
-        <button id="eraserBtn" class="btn">Borracha</button>  
-        <button id="undoBtn" class="btn">Desfazer</button>  
-        <button id="redoBtn" class="btn">Refazer</button>  
-        <button id="savePng" class="btn primary">Salvar PNG</button>  
-      </div>  
+  <section class="controls">
+    <div class="swatches" id="swatches">
+      <button class="sw" data-color="#E53935" style="background:#E53935"></button>
+      <button class="sw" data-color="#FB8C00" style="background:#FB8C00"></button>
+      <button class="sw" data-color="#FDD835" style="background:#FDD835"></button>
+      <button class="sw" data-color="#7CB342" style="background:#7CB342"></button>
+      <button class="sw" data-color="#42A5F5" style="background:#42A5F5"></button>
+      <button class="sw" data-color="#8E24AA" style="background:#8E24AA"></button>
+      <button class="sw" data-color="#8D6E63" style="background:#8D6E63"></button>
+      
+      <button class="sw custom-picker" id="pickerBtn">🎨</button>
+      <input type="color" id="colorPickerInput" style="display:none;" />
+      <button class="sw custom" id="customColorBtn">+</button>
+    </div>
 
-      <div class="pager">  
-        <button id="prevBtn" class="navbtn">◀</button>  
-        <span id="pageLabel">1 / ?</span>  
-        <button id="nextBtn" class="navbtn">▶</button>  
-      </div>  
-    </section>  
-  </main>  
+    <div class="tools">
+      <button id="eraserBtn" class="btn">Borracha</button>
+      <button id="undoBtn" class="btn">Desfazer</button>
+      <button id="redoBtn" class="btn">Refazer</button>
+      <button id="savePng" class="btn primary">Salvar</button>
+    </div>
+
+    <div class="pager">
+      <button id="prevBtn" class="navbtn">◀</button>
+      <span id="pageLabel" style="font-weight: bold; min-width: 50px; text-align: center;">1 / ?</span>
+      <button id="nextBtn" class="navbtn">▶</button>
+    </div>
+  </section>
 
   <script src="js/pintura.js"></script>
-  <script src="js/script.js"></script>  
-  <script src="js/patch-gestures-scroll.js"></script>  
-  
-  <script>  
-    // Script de interface (Popup e Cores) reintegrado para evitar erro de carregamento
-    document.addEventListener("DOMContentLoaded", () => {  
-      const customBtn = document.getElementById("customColorBtn");  
+  <script src="js/script.js"></script>
+  <script>
+    // === 1. LÓGICA DE UI E POPUP INTELIGENTE ===
+    document.addEventListener("DOMContentLoaded", () => {
+      const customBtn = document.getElementById("customColorBtn");
       const pickerBtn = document.getElementById("pickerBtn");
       const colorPickerInput = document.getElementById("colorPickerInput");
-      let popupRef = null;  
+      let popupRef = null;
 
-      const EXTRA_COLORS = ["#FF6F61","#F06292","#BA68C8","#9575CD","#4FC3F7","#4DD0E1","#81C784","#AED581","#FFD54F","#FFB74D","#A1887F","#BDBDBD"];  
+      const EXTRA_COLORS = [
+        "#FF6F61","#F06292","#BA68C8","#9575CD","#4FC3F7","#4DD0E1",
+        "#81C784","#AED581","#FFD54F","#FFB74D","#A1887F","#BDBDBD",
+        "#EF5350","#FF8A65","#FFF176","#C0CA33","#26A69A","#29B6F6"
+      ];
 
-      function applyColorSafely(color) {  
-        if (typeof window.setColor === "function") window.setColor(color);
-        else window.currentColor = color;
+      // Função segura para aplicar cor (compatível com seus scripts antigos)
+      function applyColorSafely(color) {
+        if (typeof window.setColor === "function") {
+          window.setColor(color);
+        } else {
+          window.currentColor = color; // Fallback
+        }
+        // Dispara evento para o pintura.js pegar se precisar
+        window.dispatchEvent(new CustomEvent("colorchange", { detail: { color } }));
       }
 
-      customBtn.addEventListener("click", (e) => {
-        if (popupRef) { popupRef.remove(); popupRef = null; return; }
+      // Abre o popup calculando posição para não sair da tela
+      function openPopup(btn) {
+        if (popupRef) { closePopup(); return; }
+        
         const pop = document.createElement("div");
-        pop.className = "palette-popup active";
+        pop.className = "palette-popup";
+        
         EXTRA_COLORS.forEach(c => {
           const el = document.createElement("div");
-          el.className = "extra-color"; el.style.background = c;
-          el.onclick = () => { applyColorSafely(c); pop.remove(); popupRef = null; };
+          el.className = "extra-color";
+          el.style.background = c;
+          el.onclick = (e) => {
+            e.stopPropagation();
+            applyColorSafely(c);
+            // Atualiza visual do botão +
+            customBtn.style.background = c;
+            customBtn.style.color = "transparent"; // esconde o +
+            closePopup();
+          };
           pop.appendChild(el);
         });
+
         document.body.appendChild(pop);
-        const rect = customBtn.getBoundingClientRect();
-        pop.style.left = rect.left + "px"; pop.style.top = (rect.top - 120) + "px";
-        popupRef = pop;
-      });
+        
+        // CÁLCULO DE POSIÇÃO INTELIGENTE
+        const btnRect = btn.getBoundingClientRect();
+        const popRect = pop.getBoundingClientRect(); // Tamanho natural
+        const margin = 10;
+        
+        // Centraliza horizontalmente em relação ao botão
+        let left = btnRect.left + (btnRect.width / 2) - (110); // aprox metade da largura do pop
+        
+        // Garante que não saia da esquerda nem da direita
+        if (left < margin) left = margin;
+        if (left + 220 > window.innerWidth) left = window.innerWidth - 230;
 
+        // Tenta colocar em cima, se não der, põe embaixo
+        let top = btnRect.top - popRect.height - margin;
+        if (top < margin) top = btnRect.bottom + margin;
+
+        pop.style.left = `${left}px`;
+        pop.style.top = `${top - 150}px`; // Ajuste fino manual para cima dos botões
+
+        // Animação de entrada
+        requestAnimationFrame(() => pop.classList.add("active"));
+        
+        // Fecha ao clicar fora
+        const closeHandler = (e) => {
+          if (!pop.contains(e.target) && e.target !== btn) closePopup();
+        };
+        setTimeout(() => document.addEventListener("click", closeHandler), 10);
+        popupRef = { element: pop, handler: closeHandler };
+      }
+
+      function closePopup() {
+        if (!popupRef) return;
+        popupRef.element.remove();
+        document.removeEventListener("click", popupRef.handler);
+        popupRef = null;
+      }
+
+      customBtn.onclick = (e) => { e.stopPropagation(); openPopup(customBtn); };
+      
+      // Picker Nativo
       pickerBtn.onclick = () => colorPickerInput.click();
-      colorPickerInput.oninput = (e) => applyColorSafely(e.target.value);
+      colorPickerInput.oninput = (e) => {
+        applyColorSafely(e.target.value);
+        pickerBtn.style.background = e.target.value;
+      };
 
-      // Tira o loading assim que o SVG aparecer no mount
-      const overlay = document.getElementById("loadingOverlay");  
-      const observer = new MutationObserver(() => {  
-        if (document.querySelector("#svgMount svg")) {  
-          overlay.classList.add("hidden"); observer.disconnect();  
-        }  
-      });  
-      observer.observe(document.getElementById("svgMount"), { childList: true, subtree: true });  
+      // === 2. REMOVER LOADING ASSIM QUE O SVG APARECER ===
+      const observer = new MutationObserver(() => {
+        const svg = document.querySelector("#svgMount svg");
+        if (svg) {
+          document.getElementById("loadingOverlay").classList.add("hidden");
+          observer.disconnect();
+          // Iniciar script de zoom se necessário aqui
+        }
+      });
+      observer.observe(document.getElementById("svgMount"), { childList: true, subtree: true });
     });
+
+    // === 3. SCRIPT DE ZOOM E GESTOS (Restaurado) ===
+    (function() {
+      const mount = document.getElementById("svgMount");
+      if (!mount) return;
+
+      const state = { scale: 1, tx: 0, ty: 0 };
+      let svg = null;
+
+      function updateTransform() {
+        if (!svg) return;
+        svg.style.transform = `translate(${state.tx}px, ${state.ty}px) scale(${state.scale})`;
+      }
+
+      function attachGestures(el) {
+        svg = el;
+        el.style.transformOrigin = "center center";
+        // Reset inicial
+        state.scale = 1; state.tx = 0; state.ty = 0;
+        updateTransform();
+
+        // Lógica simples de Pinch/Pan (Simplificada para confiabilidade)
+        let pointers = [];
+        let startDist = 0;
+        let startScale = 1;
+
+        el.addEventListener('pointerdown', e => {
+          el.setPointerCapture(e.pointerId);
+          pointers.push(e);
+          if (pointers.length === 2) {
+             startDist = Math.hypot(pointers[0].clientX - pointers[1].clientX, pointers[0].clientY - pointers[1].clientY);
+             startScale = state.scale;
+          }
+        });
+
+        el.addEventListener('pointermove', e => {
+          // Atualiza posição do pointer
+          const index = pointers.findIndex(p => p.pointerId === e.pointerId);
+          if (index >= 0) pointers[index] = e;
+
+          if (pointers.length === 2) {
+            // Zoom (Pinch)
+            const dist = Math.hypot(pointers[0].clientX - pointers[1].clientX, pointers[0].clientY - pointers[1].clientY);
+            if (startDist > 0) {
+              const diff = dist - startDist;
+              // Ajuste de sensibilidade
+              const newScale = startScale + (diff * 0.005);
+              state.scale = Math.max(1, Math.min(newScale, 4));
+              updateTransform();
+            }
+          } else if (pointers.length === 1 && state.scale > 1) {
+             // Pan (Só se estiver com zoom)
+             state.tx += e.movementX;
+             state.ty += e.movementY;
+             updateTransform();
+          }
+        });
+
+        const endGesture = (e) => {
+          pointers = pointers.filter(p => p.pointerId !== e.pointerId);
+          if (pointers.length === 0 && state.scale < 1.05) {
+            state.scale = 1; state.tx = 0; state.ty = 0; updateTransform();
+          }
+        };
+        el.addEventListener('pointerup', endGesture);
+        el.addEventListener('pointercancel', endGesture);
+      }
+
+      // Observa novos SVGs carregados
+      new MutationObserver(() => {
+        const s = mount.querySelector("svg");
+        if (s && s !== svg) attachGestures(s);
+      }).observe(mount, {childList:true, subtree:true});
+    })();
   </script>
-</body>  
+</body>
 </html>
