@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="en-US">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Pintando a Palavra — Colorir</title>
+  <title>Paint the Word — Coloring</title>
   <link rel="stylesheet" href="css/style.css" />
 
   <style>
@@ -101,7 +101,6 @@
 
   <div id="loadingOverlay">
     <div class="spin-loader"></div>
-    <div style="margin-top:10px; font-weight:bold; color:#555;">Carregando...</div>
   </div>
 
   <header class="topbar">
@@ -132,10 +131,10 @@
     </div>
 
     <div class="tools">
-      <button id="eraserBtn" class="btn">Borracha</button>
-      <button id="undoBtn" class="btn">Desfazer</button>
-      <button id="redoBtn" class="btn">Refazer</button>
-      <button id="savePng" class="btn primary">Salvar</button>
+      <button id="eraserBtn" class="btn">Eraser</button>
+      <button id="undoBtn" class="btn">Undo</button>
+      <button id="redoBtn" class="btn">Redo</button>
+      <button id="savePng" class="btn primary">Save</button>
     </div>
 
     <div class="pager">
@@ -164,7 +163,7 @@
         const currentStars = parseInt(starCountEl.textContent) || 0;
         if (currentStars > lastStarCount) {
           starSound.currentTime = 0;
-          starSound.play().catch(e => console.log("Erro som:", e));
+          starSound.play().catch(e => console.log("Sound Error:", e));
         }
         lastStarCount = currentStars;
       };
@@ -268,7 +267,7 @@
         obs.observe(mount, { childList: true, subtree: true });
       })();
 
-      // --- 🔒 INTERCEPTADOR PARA O APP (FLUTTER) ---
+      // --- 🔒 INTERCEPTOR FOR APP (FLUTTER) ---
       (function initAppInterceptor() {
         const originalCreateElement = document.createElement;
         document.createElement = function(tagName) {
@@ -281,7 +280,7 @@
                   const base64 = el.href.replace("data:image/png;base64,", "");
                   try {
                     window.ImageChannel.postMessage(base64);
-                    return; // Interceptado com sucesso
+                    return; // Successfully intercepted
                   } catch (err) { console.error(err); }
                 }
               }
