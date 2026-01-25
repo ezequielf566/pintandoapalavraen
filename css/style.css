@@ -1,49 +1,38 @@
-/* === CSS TÉCNICO: FOCO NO SVG E CANVAS === */
+/* style.css
+   Focado EXCLUSIVAMENTE no comportamento técnico da área de desenho.
+   O Design visual está todo no index.html
+*/
 
 .svgMount {
   width: 100%;
-  aspect-ratio: 16/10;
-  background: #fff;
-  border-radius: 14px;
-  overflow: hidden; /* Importante para o zoom não "vazar" */
+  height: 100%;
+  position: relative;
+  overflow: hidden; /* Oculta o que sai da área ao dar zoom */
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  touch-action: none; /* Necessário para os gestos de pinch zoom */
+  /* Importante para gestos funcionarem bem */
+  touch-action: none; 
+  user-select: none;
+  -webkit-user-select: none;
 }
 
-/* Garante que o SVG preencha o espaço mas respeite o zoom */
+/* O SVG dentro da montagem */
 #svgMount svg {
+  display: block;
   width: 100%;
   height: auto;
-  display: block;
-  transform-origin: center center;
-  transition: transform 0.1s ease-out; /* Suaviza o zoom manual */
+  max-height: 100%;
+  /* O JavaScript controla o transform, aqui garantimos a transição suave */
   will-change: transform;
+  /* Cursor indica que pode interagir */
+  cursor: crosshair; 
 }
 
-/* Ajuste para modo mobile (Prancheta mais alta) */
-@media (max-width: 640px) {
-  .svgMount {
-    aspect-ratio: 3/4;
-    max-height: 60vh;
-  }
-}
-
-/* Regras de Impressão */
+/* Garante que o modo de impressão seja limpo */
 @media print {
-  body { background: #fff !important; }
-  .svgMount { box-shadow: none !important; }
-}
-
-/* Estado de Seleção na Pintura */
-.btn.active {
-  outline: 3px solid rgba(0,0,0,0.2);
-  transform: translateY(-1px);
-}
-
-/* Espaçamento extra para o scroll quando houver zoom alto */
-.zoom-extra-space {
-  height: var(--zoom-extra, 0px);
+  body { background: white !important; display: block; }
+  .controls, .topbar, #loadingOverlay { display: none !important; }
+  .stage { box-shadow: none; border: 0; }
+  .svgMount { overflow: visible; }
 }
