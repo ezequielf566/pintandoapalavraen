@@ -4,201 +4,129 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Pintando a Palavra — Colorir</title>
-  
   <link rel="stylesheet" href="css/style.css" />
 
   <style>
-    /* =========================================
-       DESIGN VISUAL E LAYOUT (Ajustado)
-       ========================================= */
-    
+    /* RESET E ESTRUTURA BASE */
     *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
     :root{
       --bg1:#fffdf2; --bg2:#ffe6a7;
-      --panel:#fff; --ink:#1f2937; --shadow:0 12px 28px rgba(0,0,0,.12);
-      --radius:18px; --accent:#f59e0b;
+      --panel:#fff; --ink:#1f2937; --shadow:0 8px 20px rgba(0,0,0,.1);
+      --radius:18px;
     }
-    html,body{height:100%; margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif; overflow: hidden;}
-    body{
-      background:linear-gradient(var(--bg1),var(--bg2));
-      color:var(--ink);
-      display: flex; flex-direction: column;
-    }
+    html,body{height:100%; margin:0; font-family:system-ui,sans-serif; overflow: hidden;}
+    body{ background:linear-gradient(var(--bg1),var(--bg2)); display: flex; flex-direction: column; }
 
-    /* Topbar */
-    .topbar{ flex: 0 0 auto; display:flex; justify-content:flex-end; padding:12px 16px; z-index: 10; }
+    /* TOPBAR */
+    .topbar{ flex: 0 0 auto; display:flex; justify-content:flex-end; padding:10px 16px; z-index: 10; }
 
-    /* Área Principal */
-    .wrap {
-      flex: 1; display:flex; flex-direction:column; gap:14px;
-      width: 100%; max-width:1024px; margin:0 auto; padding:12px;
-      overflow: hidden; position: relative;
-    }
-    
-    .stage {
-      background:#fff; border-radius:var(--radius); box-shadow:var(--shadow);
-      padding: 0;
-      flex: 1;
-      position: relative;
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden;
-    }
+    /* ÁREA DO DESENHO */
+    .wrap { flex: 1; display:flex; flex-direction:column; width: 100%; max-width:1024px; margin:0 auto; padding:8px; overflow: hidden; }
+    .stage { background:#fff; border-radius:var(--radius); box-shadow:var(--shadow); flex: 1; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 
-    /* Controles (Rodapé) */
+    /* CONTROLES TOTAIS */
     .controls {
       flex: 0 0 auto;
       background: #ffe082;
-      padding: 12px 10px; /* Ajustei o padding vertical para dar mais ar */
-      display: flex; flex-direction: column; align-items: center; gap: 12px; /* Aumentei o gap entre blocos */
+      padding: 10px 8px 6px 8px; /* Reduzido para ganhar espaço */
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
       z-index: 100;
-      box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
-      border-radius: 20px 20px 0 0;
+      box-shadow: 0 -4px 15px rgba(0,0,0,0.08);
+      border-radius: 24px 24px 0 0;
     }
 
-    /* === PALETAS E BOTÕES (Ajuste para caber na tela) === */
+    /* PALETAS FIXAS (SEM SCROLL) */
     .swatches {
       display: flex;
-      justify-content: center;
+      justify-content: space-between; /* Distribui igualmente */
       align-items: center;
-      gap: 6px; /* Reduzi levemente o gap para caber mais */
-      flex-wrap: nowrap;
       width: 100%;
-      overflow-x: auto;
-      padding-bottom: 4px;
-      /* Garante que o container não "estoure" a largura */
-      max-width: 100%;
-      scrollbar-width: none; /* Firefox */
+      max-width: 500px; /* Limite para não espalhar demais em tablets */
+      gap: 4px;
+      flex-wrap: nowrap; /* Garante fila única */
     }
-    .swatches::-webkit-scrollbar { display: none; /* Chrome/Safari */ }
 
     .sw {
-      flex: 0 0 auto;
-      width: 44px; height: 44px; /* Reduzi levemente o tamanho padrão */
+      flex: 1 1 0; /* Cresce e encolhe igualmente */
+      min-width: 0; /* Permite encolher abaixo do conteúdo */
+      aspect-ratio: 1/1; /* Mantém sempre redondo */
+      max-width: 42px; /* Tamanho máximo ideal */
       border-radius: 50%;
       border: 3px solid #fff;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
       cursor: pointer;
       padding: 0;
-      transition: transform 0.1s, border-color 0.1s;
+      transition: transform 0.1s;
     }
-    .sw:active { transform: scale(0.9); }
     .sw.active { border-color: #333; transform: scale(1.1); z-index: 2; }
 
-    /* Botões Especiais (+ e Picker) */
-    .sw.custom-picker, .sw.custom {
-      border-radius: 12px; 
-      width: 40px; height: 40px; /* Ajuste proporcional */
-      display: flex; align-items: center; justify-content: center;
-      font-weight: bold; font-size: 1.2rem;
-      color: #555; background: #fff;
-    }
-    .sw.custom-picker { background: linear-gradient(135deg, #FFD54F, #FFB300); color: white; border: 2px solid #fff; }
-
-    /* Barra de Ferramentas (Borracha, Undo, etc) */
+    /* Botões de Ação (Borracha, etc) */
     .tools {
-      display:flex; gap:10px; flex-wrap:nowrap; justify-content:center;
-      overflow-x: auto; width: 100%; max-width: 100%;
-      scrollbar-width: none;
+      display:flex; gap:8px; justify-content:center; width: 100%;
     }
-    .tools::-webkit-scrollbar { display: none; }
-
     .btn {
-      flex: 0 0 auto;
+      flex: 0 1 auto;
       background:#ffb703; color:#222; border:0; border-radius:12px;
-      padding:10px 14px; cursor:pointer; font-weight:700; 
-      box-shadow: var(--shadow); font-size: 14px;
+      padding:8px 12px; cursor:pointer; font-weight:700; font-size: 13px;
+      box-shadow: 0 4px 0 #e6a600; /* Efeito de profundidade para não parecer "cortado" */
     }
-    .btn.primary { background:#2ecc71; color:#fff; }
-    .btn:active, .btn.active { transform: translateY(2px); box-shadow: none; outline: 2px solid #333; }
+    .btn.primary { background:#2ecc71; color:#fff; box-shadow: 0 4px 0 #27ae60; }
+    .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #e6a600; }
 
-    /* Navegação de Páginas (Ajuste do "balão" colado) */
+    /* RODAPÉ MINIMALISTA (SETAS) */
     .pager {
-      display:flex; gap:12px; align-items:center; justify-content:center;
-      /* Aumentei a margem superior para desgrudar do menu de ferramentas */
-      margin-top: 8px;
-      padding-bottom: 5px; /* Um pouco de respiro embaixo */
+      display:flex; gap:15px; align-items:center; justify-content:center;
+      background: rgba(255,255,255,0.3); /* Balão mais discreto */
+      padding: 4px 15px;
+      border-radius: 20px;
+      margin-top: 5px;
     }
-    .navbtn { width:42px; height:36px; border:0; border-radius:10px; background:#ffd166; cursor:pointer; font-weight: bold; }
-
-    /* === PROGRESS WIDGET === */
-    .progress-widget { display:flex; flex-direction:column; align-items:flex-end; gap:4px; max-width: 100%; }
-    .counter { font-weight:800; color:#111; font-size: clamp(14px, 4vw, 20px); display: flex; align-items: center; gap: 5px; }
-    .star-icon { color: #f4b400; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-    
-    .progressbar {
-      position:relative; width: clamp(200px, 50vw, 400px); height:32px;
-      background: transparent; border: 3px solid #111; border-radius: 99px;
-      padding: 3px;
-    }
-    .progressbar .track {
-      width: 100%; height: 100%; background: #fff; border-radius: 99px; overflow: hidden; position: relative;
-    }
-    .progress-fill {
-      position:absolute; left:0; top:0; bottom:0; width:0%;
-      background:#9dd39a; transition: width 0.4s ease-out;
+    .navbtn { 
+      width:32px; height:32px; border:0; border-radius:50%; 
+      background:#fff; color: #ffb703; cursor:pointer; 
+      font-size: 16px; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
-    /* === POPUP DE CORES (Ajuste de Grid e Posição) === */
+    /* POPUP DE CORES (4 COLUNAS) */
     .palette-popup {
       position: fixed; background: #fff; border: 3px solid #ffd54f; border-radius: 16px;
-      padding: 10px;
-      /* Mudei para 4 colunas para ficar mais compacto e centralizado */
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
-      z-index: 9999;
+      padding: 10px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25); z-index: 9999;
       opacity: 0; transform: scale(0.9); pointer-events: none;
       transition: opacity 0.2s, transform 0.2s;
-      /* Tamanho máximo para não estourar a tela */
-      max-width: 90vw;
     }
     .palette-popup.active { opacity: 1; transform: scale(1); pointer-events: auto; }
-    /* Cores do popup um pouco menores para caberem no grid de 4 */
-    .extra-color { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(0,0,0,0.1); }
+    .extra-color { width: 34px; height: 34px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(0,0,0,0.05); }
 
-    /* === TELA DE CARREGAMENTO === */
-    #loadingOverlay {
-      position: fixed; inset: 0; background: #fff9e6;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      z-index: 10000; transition: opacity 0.5s;
-    }
-    #loadingOverlay.hidden { opacity: 0; pointer-events: none; }
-    .spinner {
-      width: 50px; height: 50px; border: 5px solid #ffd54f; border-top-color: transparent;
-      border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* PROGRESS BAR */
+    .progress-widget { display:flex; flex-direction:column; align-items:flex-end; gap:2px; }
+    .counter { font-weight:800; font-size: 14px; }
+    .progressbar { width: 180px; height:12px; background: #fff; border: 2px solid #111; border-radius: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; background:#9dd39a; width: 0%; transition: width 0.3s; }
 
-    /* Ajustes Mobile (Telas muito pequenas) */
-    @media (max-width: 380px) {
-      .sw { width: 38px; height: 38px; }
-      .sw.custom-picker, .sw.custom { width: 36px; height: 36px; }
-      .btn { padding: 8px 10px; font-size: 12px; }
-      .controls { padding: 10px 8px; gap: 10px; }
-      .pager { margin-top: 6px; }
+    /* ESPECÍFICO PARA O BOTÃO "+" E "🎨" NA FILA */
+    .sw.special {
+      background: #fff; border: 2px dashed #aaa; 
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: bold; color: #666;
     }
+    .sw.picker { background: linear-gradient(135deg, #FFD54F, #FFB300); border-style: solid; color: white; }
+
+    #loadingOverlay { position: fixed; inset: 0; background: #fff9e6; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; }
+    #loadingOverlay.hidden { display: none; }
   </style>
 </head>
-
 <body>
-  
+
   <div id="loadingOverlay">
-    <div class="spinner"></div>
-    <div style="font-weight: bold; color: #555;">Carregando...</div>
+    <div style="width:40px; height:40px; border:4px solid #ffd54f; border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite;"></div>
   </div>
 
   <header class="topbar">
-    <div id="progressWidget" class="progress-widget">
-      <div class="counter">
-        <span id="starCount">0</span>/<span id="totalPages">?</span> 
-        <span class="star-icon">★</span> 
-        <span id="progressPercent">0%</span>
-      </div>
-      <div class="progressbar">
-        <div class="track">
-          <div id="progressFill" class="progress-fill"></div>
-        </div>
-      </div>
-      <audio id="starSound" src="assets/sounds/estrela.mp3" preload="auto"></audio>
+    <div class="progress-widget">
+      <div class="counter"><span id="starCount">0</span>/<span id="totalPages">?</span> ★</div>
+      <div class="progressbar"><div id="progressFill" class="progress-fill"></div></div>
     </div>
   </header>
 
@@ -218,9 +146,9 @@
       <button class="sw" data-color="#8E24AA" style="background:#8E24AA"></button>
       <button class="sw" data-color="#8D6E63" style="background:#8D6E63"></button>
       
-      <button class="sw custom-picker" id="pickerBtn">🎨</button>
+      <button class="sw special picker" id="pickerBtn">🎨</button>
       <input type="color" id="colorPickerInput" style="display:none;" />
-      <button class="sw custom" id="customColorBtn">+</button>
+      <button class="sw special" id="customColorBtn">+</button>
     </div>
 
     <div class="tools">
@@ -232,7 +160,7 @@
 
     <div class="pager">
       <button id="prevBtn" class="navbtn">◀</button>
-      <span id="pageLabel" style="font-weight: bold; min-width: 50px; text-align: center;">1 / ?</span>
+      <span id="pageLabel" style="font-weight: bold; font-size: 13px;">1 / 80</span>
       <button id="nextBtn" class="navbtn">▶</button>
     </div>
   </section>
@@ -241,7 +169,6 @@
   <script src="js/script.js"></script>
   
   <script>
-    // === 1. LÓGICA DE UI E POPUP INTELIGENTE (AJUSTADA) ===
     document.addEventListener("DOMContentLoaded", () => {
       const customBtn = document.getElementById("customColorBtn");
       const pickerBtn = document.getElementById("pickerBtn");
@@ -251,160 +178,57 @@
       const EXTRA_COLORS = [
         "#FF6F61","#F06292","#BA68C8","#9575CD","#4FC3F7","#4DD0E1",
         "#81C784","#AED581","#FFD54F","#FFB74D","#A1887F","#BDBDBD",
-        "#EF5350","#FF8A65","#FFF176","#C0CA33","#26A69A","#29B6F6"
+        "#EF5350","#FF8A65","#FFF176","#C0CA33","#26A69A","#29B6F6", "#444"
       ];
 
-      function applyColorSafely(color) {
-        if (typeof window.setColor === "function") {
-          window.setColor(color);
-        } else {
-          window.currentColor = color;
-        }
+      function applyColor(color) {
+        if (window.setColor) window.setColor(color);
+        else window.currentColor = color;
         window.dispatchEvent(new CustomEvent("colorchange", { detail: { color } }));
       }
 
       function openPopup(btn) {
         if (popupRef) { closePopup(); return; }
-        
         const pop = document.createElement("div");
         pop.className = "palette-popup";
-        
         EXTRA_COLORS.forEach(c => {
           const el = document.createElement("div");
           el.className = "extra-color";
           el.style.background = c;
-          el.onclick = (e) => {
-            e.stopPropagation();
-            applyColorSafely(c);
-            customBtn.style.background = c;
-            customBtn.style.color = "transparent";
-            closePopup();
-          };
+          el.onclick = () => { applyColor(c); customBtn.style.background = c; closePopup(); };
           pop.appendChild(el);
         });
-
         document.body.appendChild(pop);
-        
-        // CÁLCULO DE POSIÇÃO REFINADO PARA CENTRALIZAR
-        const btnRect = btn.getBoundingClientRect();
-        const popRect = pop.getBoundingClientRect();
-        const margin = 10;
-        const windowWidth = window.innerWidth;
-        
-        // Tenta centralizar o popup em relação à tela horizontalmente
-        let left = (windowWidth / 2) - (popRect.width / 2);
-
-        // Se o botão estiver muito longe do centro, alinha mais próximo dele
-        const btnCenter = btnRect.left + (btnRect.width / 2);
-        if (Math.abs(btnCenter - windowWidth/2) > windowWidth/4) {
-           // Se o botão está muito na ponta, alinha o popup com o centro do botão
-           left = btnCenter - (popRect.width / 2);
-        }
-
-        // Garante que não saia da tela, com margem de segurança
-        if (left < margin) left = margin;
-        if (left + popRect.width > windowWidth - margin) {
-          left = windowWidth - popRect.width - margin;
-        }
-
-        // Posição vertical (acima do botão)
-        let top = btnRect.top - popRect.height - margin;
-        if (top < margin) top = btnRect.bottom + margin; // fallback para baixo
-
-        pop.style.left = `${left}px`;
-        pop.style.top = `${top - 20}px`; // Um pouco mais alto para dar destaque
-
-        requestAnimationFrame(() => pop.classList.add("active"));
-        
-        const closeHandler = (e) => {
-          if (!pop.contains(e.target) && e.target !== btn) closePopup();
-        };
-        setTimeout(() => document.addEventListener("click", closeHandler), 10);
-        popupRef = { element: pop, handler: closeHandler };
+        const br = btn.getBoundingClientRect();
+        pop.style.left = `${Math.min(window.innerWidth - 180, Math.max(10, br.left - 70))}px`;
+        pop.style.top = `${br.top - pop.offsetHeight - 15}px`;
+        setTimeout(() => pop.classList.add("active"), 10);
+        const clickOut = (e) => { if(!pop.contains(e.target) && e.target !== btn) closePopup(); };
+        document.addEventListener("click", clickOut);
+        popupRef = { el: pop, fn: clickOut };
       }
 
       function closePopup() {
         if (!popupRef) return;
-        popupRef.element.remove();
-        document.removeEventListener("click", popupRef.handler);
+        popupRef.el.remove();
+        document.removeEventListener("click", popupRef.fn);
         popupRef = null;
       }
 
       customBtn.onclick = (e) => { e.stopPropagation(); openPopup(customBtn); };
-      
       pickerBtn.onclick = () => colorPickerInput.click();
-      colorPickerInput.oninput = (e) => {
-        applyColorSafely(e.target.value);
-        pickerBtn.style.background = e.target.value;
-      };
+      colorPickerInput.oninput = (e) => { applyColor(e.target.value); pickerBtn.style.background = e.target.value; };
 
-      // === 2. REMOVER LOADING ASSIM QUE O SVG APARECER ===
-      const observer = new MutationObserver(() => {
-        const svg = document.querySelector("#svgMount svg");
-        if (svg) {
+      const obs = new MutationObserver(() => {
+        if (document.querySelector("#svgMount svg")) {
           document.getElementById("loadingOverlay").classList.add("hidden");
-          observer.disconnect();
+          obs.disconnect();
         }
       });
-      observer.observe(document.getElementById("svgMount"), { childList: true, subtree: true });
+      obs.observe(document.getElementById("svgMount"), { childList: true, subtree: true });
     });
 
-    // === 3. SCRIPT DE ZOOM E GESTOS (Mantido Intacto) ===
-    (function() {
-      const mount = document.getElementById("svgMount");
-      if (!mount) return;
-      const state = { scale: 1, tx: 0, ty: 0 };
-      let svg = null;
-      function updateTransform() {
-        if (!svg) return;
-        svg.style.transform = `translate(${state.tx}px, ${state.ty}px) scale(${state.scale})`;
-      }
-      function attachGestures(el) {
-        svg = el;
-        el.style.transformOrigin = "center center";
-        state.scale = 1; state.tx = 0; state.ty = 0; updateTransform();
-        let pointers = [];
-        let startDist = 0;
-        let startScale = 1;
-        el.addEventListener('pointerdown', e => {
-          el.setPointerCapture(e.pointerId);
-          pointers.push(e);
-          if (pointers.length === 2) {
-             startDist = Math.hypot(pointers[0].clientX - pointers[1].clientX, pointers[0].clientY - pointers[1].clientY);
-             startScale = state.scale;
-          }
-        });
-        el.addEventListener('pointermove', e => {
-          const index = pointers.findIndex(p => p.pointerId === e.pointerId);
-          if (index >= 0) pointers[index] = e;
-          if (pointers.length === 2) {
-            const dist = Math.hypot(pointers[0].clientX - pointers[1].clientX, pointers[0].clientY - pointers[1].clientY);
-            if (startDist > 0) {
-              const diff = dist - startDist;
-              const newScale = startScale + (diff * 0.005);
-              state.scale = Math.max(1, Math.min(newScale, 4));
-              updateTransform();
-            }
-          } else if (pointers.length === 1 && state.scale > 1) {
-             state.tx += e.movementX;
-             state.ty += e.movementY;
-             updateTransform();
-          }
-        });
-        const endGesture = (e) => {
-          pointers = pointers.filter(p => p.pointerId !== e.pointerId);
-          if (pointers.length === 0 && state.scale < 1.05) {
-            state.scale = 1; state.tx = 0; state.ty = 0; updateTransform();
-          }
-        };
-        el.addEventListener('pointerup', endGesture);
-        el.addEventListener('pointercancel', endGesture);
-      }
-      new MutationObserver(() => {
-        const s = mount.querySelector("svg");
-        if (s && s !== svg) attachGestures(s);
-      }).observe(mount, {childList:true, subtree:true});
-    })();
+    @keyframes spin { to { transform: rotate(360deg); } }
   </script>
 </body>
 </html>
